@@ -1,0 +1,10 @@
+.idea
+**/*.bat
+
+node_modules
+
+/client/.vite/
+
+/server/database/tables/**
+!/server/database/tables/example.json
+/server/database/backups/**

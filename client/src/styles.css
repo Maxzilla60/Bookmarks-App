@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+:root {
+	--accent-color-400: #F472B6;
+	--accent-color-500: #EC4899;
+	--accent-color-600: #DB2777;
+	--accent-color-700: #BE185D;
+	--accent-color-950: #500724;
+
+	--grey-color-hue: 218;
+}
+
+html, body, #app {
+	height: 100%;
+	width: 100%;
+	background-color: hsl(var(--grey-color-hue), 0%, 93%);
+	margin: 0;
+}
+
+* {
+	font-size: large;
+	font-family: 'Open Sans', sans-serif;
+	color: hsl(var(--grey-color-hue), 17%, 16%);
+}
+
+*:focus {
+	outline: 2px inset var(--accent-color-400);
+}
+
+#app {
+	display: flex;
+	flex-direction: column;
+}
+
+input, select {
+	vertical-align: middle;
+	background-color: white;
+	border: none;
+	padding: 3px;
+	border-radius: 4px;
+}
+
+select {
+	padding: 2px;
+}
+
+button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--accent-color-500);
+	border: none;
+	border-radius: 5px;
+	height: 30px;
+	width: 37px;
+	vertical-align: middle;
+	cursor: pointer;
+	padding: 8px;
+}
+
+button:hover:not(:disabled):not(:active) {
+	background-color: var(--accent-color-400);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 0 0 var(--accent-color-700);
+}
+
+button:active {
+	transform: none;
+}
+
+button:disabled {
+	opacity: 50%;
+	cursor: initial;
+}
+
+a {
+	color: var(--accent-color-600);
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+a:hover {
+	color: var(--accent-color-500);
+}
+
+.toolbar {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.top-bar-divider {
+	border: 1px solid hsl(var(--grey-color-hue), 10%, 45%);
+	height: 100%;
+}
+
+.dialog-container > button {
+	margin: 15px 0 0 0;
+	color: white;
+	padding: 5px;
+	height: unset;
+	width: unset;
+}
+
+.dialog-container > button > *:first-child {
+	margin-right: 6px;
+}
+
+.dialog-container > button > span {
+	color: white;
+}
+
+.list_bookmark.selected .bookmark_tag {
+	outline: solid 1px white !important;
+}

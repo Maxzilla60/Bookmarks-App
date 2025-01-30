@@ -1,0 +1,43 @@
+{
+	"emoji": "🔖",
+	"bookmarks": [
+		{
+			"id": "L7ox7tjNFcMf5m8qx9bd2",
+			"title": "Google",
+			"url": "http://www.google.com/",
+			"tags": [
+				"search",
+				"google"
+			],
+			"visitCount": 1,
+			"position": 1
+		},
+		{
+			"id": "Q4DaHVNShmjFCVGTOEcMD",
+			"title": "Bing",
+			"url": "http://www.bing.com/",
+			"tags": [
+				"search",
+				"microsoft"
+			],
+			"visitCount": 1,
+			"position": 0
+		}
+	],
+	"votes": [
+		{
+			"id": "KFXTTBYTIgpAVtBPiAFxz",
+			"winner": "L7ox7tjNFcMf5m8qx9bd2",
+			"loser": "Q4DaHVNShmjFCVGTOEcMD"
+		}
+	],
+	"categories": [
+		{
+			"name": "search",
+			"tags": [
+				"search"
+			],
+			"color": "#5C6370"
+		}
+	]
+}

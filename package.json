@@ -1,0 +1,19 @@
+{
+	"name": "bookmarksapp",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"client",
+		"server",
+		"schemas"
+	],
+	"scripts": {
+		"start": "npx concurrently -n \"server,client\" -c \"magenta,yellow\" \"npm run server\" \"npx wait-on http://localhost:3000 && npm run client\"",
+		"server": "npm run start --workspace=server",
+		"client": "npm run start --workspace=client"
+	},
+	"devDependencies": {
+		"concurrently": "^9.1.0",
+		"wait-for": "^2.1.1"
+	}
+}
