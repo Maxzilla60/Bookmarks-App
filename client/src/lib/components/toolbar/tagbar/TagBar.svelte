@@ -6,7 +6,7 @@
 	import { tagBookmarks } from '../../../api/actions/tagBookmarks';
 	import { allBookmarks$, allTags$ } from '../../../api/data/allBookmarks$';
 	import { fromCtrlShortcut } from '../../../util/util';
-	import { selectedBookmarkIds$ } from '../../list/selectedBookmarks';
+	import { selectedBookmarkIds$ } from '../../list/selectedBookmark';
 	import CategoriesButton from './components/CategoriesButton.svelte';
 
 	const selectedTagSubject = new BehaviorSubject<string>('');

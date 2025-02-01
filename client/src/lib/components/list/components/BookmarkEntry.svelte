@@ -1,36 +1,58 @@
 <script lang="ts">
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { ToiletIcon } from 'lucide-svelte';
-	import { deleteBookmark } from '../../../../api/actions/deleteBookmark';
-	import { visitBookmark } from '../../../../api/actions/visitBookmark';
-	import { getBookmarkVersusString } from '../../../../util/util';
-	import { openBookmarkDetails } from '../../../details/state';
-	import Tag from '../../../shared/Tag.svelte';
-	import { selectBookmarks, selectedBookmarkIds$ } from '../../selectedBookmarks';
+	import { writable } from 'svelte/store';
+	import { deleteBookmark } from '../../../api/actions/deleteBookmark';
+	import { visitBookmark } from '../../../api/actions/visitBookmark';
+	import { getBookmarkVersusString } from '../../../util/util';
+	import { openBookmarkDetails } from '../../details/state';
+	import Tag from '../../shared/Tag.svelte';
+	import { selectBookmark, selectedBookmarkIds$ } from '../selectedBookmark';
 
 	type Props = {
 		bookmark: Bookmark;
 	};
 	const { bookmark }: Props = $props();
+
+	const isHovering = writable<boolean>(false);
+
+	function handleSelect(event: Event) {
+		const { checked } = event.target as HTMLInputElement;
+		const { shiftKey } = event;
+
+		selectBookmark(
+			bookmark.id,
+			shiftKey,
+			!checked,
+		);
+	}
 </script>
 
 <div
-	onclick={e => selectBookmarks([bookmark.id], e.shiftKey)}
 	id={bookmark.id}
 	class="list_bookmark"
 	class:selected={$selectedBookmarkIds$.includes(bookmark.id)}
 >
+	<input
+		style:display={$isHovering ? 'initial' : 'none'}
+		onclick={e => handleSelect(e)}
+		onmouseleave={() => isHovering.set(false)}
+		type="checkbox"
+		checked={$selectedBookmarkIds$.includes(bookmark.id)}
+	/>
 	<img
-		onclick={e =>{
-			e.stopPropagation();
-			openBookmarkDetails(bookmark);
-		}}
+		style:display={$isHovering ? 'none' : 'initial'}
+		onmouseenter={() => isHovering.set(true)}
 		title={getBookmarkVersusString(bookmark)}
 		loading="lazy"
 		src={`https://www.google.com/s2/favicons?domain=${bookmark.url}`}
 		alt="favicon"
 	/>
 	<span
+		onclick={e =>{
+			e.stopPropagation();
+			openBookmarkDetails(bookmark);
+		}}
 		title={bookmark.title}
 		class="list_bookmark_title"
 		class:deleted={bookmark.tags.includes('deleted')}
@@ -83,12 +105,16 @@
 		cursor: pointer;
 	}
 
-	img {
+	img, input {
 		background-color: white;
 		width: 20px;
 		height: 20px;
 		margin-left: 10px;
 		margin-right: 5px;
+	}
+
+	input {
+		cursor: pointer;
 	}
 
 	.list_bookmark_title, a, .list_bookmark_tags {

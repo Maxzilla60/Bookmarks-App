@@ -6,7 +6,7 @@
 	import { deleteBookmark } from '../../../api/actions/deleteBookmark';
 	import { visitBookmark } from '../../../api/actions/visitBookmark';
 	import { openBookmarkDetails } from '../../details/state';
-	import { selectBookmarks } from '../../list/selectedBookmarks';
+	import { selectBookmark } from '../../list/selectedBookmark';
 	import Tag from '../../shared/Tag.svelte';
 	import { newVersusBattle } from '../versusBattle$';
 
@@ -16,8 +16,8 @@
 	}
 	const { bookmark, otherBookmark }: Props = $props();
 
-	function selectBookmark(bookmarkId: string): void {
-		selectBookmarks([bookmarkId]);
+	function handleSelect(bookmarkId: string): void {
+		selectBookmark(bookmarkId);
 		document.getElementById(bookmarkId)?.scrollIntoView();
 	}
 
@@ -62,7 +62,7 @@
 			</button>
 			<span class="versus-bookmark-divider"></span>
 			<button
-				onclick={() => selectBookmark(bookmark.id)}
+				onclick={() => handleSelect(bookmark.id)}
 				title="Go to this bookmark in list"
 				aria-label="Go to this bookmark in list"
 			>

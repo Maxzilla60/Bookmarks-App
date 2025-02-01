@@ -6,7 +6,7 @@
 	import BookmarkDetailsDialog from '../details/BookmarkDetailsDialog.svelte';
 	import { searchTerm$ } from '../toolbar/searchbar/components/searchinput/search';
 	import { sortType$ } from '../toolbar/searchbar/components/sort/sorting';
-	import BookmarkEntry from './components/details/BookmarkEntry.svelte';
+	import BookmarkEntry from './components/BookmarkEntry.svelte';
 
 	const sortedBookmarks$: Observable<Array<Bookmark>> = combineLatest({
 		bookmarks: allBookmarks$,

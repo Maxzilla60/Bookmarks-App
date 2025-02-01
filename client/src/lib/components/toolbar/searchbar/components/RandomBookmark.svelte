@@ -3,7 +3,7 @@
 	import { map, Subject, withLatestFrom } from 'rxjs';
 	import { allBookmarks$ } from '../../../../api/data/allBookmarks$';
 	import { randomChoice } from '../../../../util/util';
-	import { selectBookmarks } from '../../../list/selectedBookmarks';
+	import { selectBookmark } from '../../../list/selectedBookmark';
 
 	const openRandomBookmarkSubject = new Subject<void>();
 	openRandomBookmarkSubject.pipe(
@@ -11,7 +11,7 @@
 		map(([_, bookmarks]) => bookmarks),
 		map(randomChoice),
 	).subscribe(randomBookmark => {
-		selectBookmarks([randomBookmark.id]);
+		selectBookmark(randomBookmark.id);
 		document.getElementById(randomBookmark.id)?.scrollIntoView();
 		window.open(randomBookmark.url, '_blank', 'noreferrer noopener');
 	});

@@ -3,8 +3,9 @@ import { map, scan, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs
 import { currentTable$ } from '../../api/data/currentTable$';
 
 type SelectBookmarks = {
-	bookmarkIds: Array<string>;
+	bookmarkId: string;
 	append: boolean;
+	deselect: boolean;
 }
 
 const LC_KEY = 'selectedBookmarkIds';
@@ -12,11 +13,14 @@ const LC_KEY = 'selectedBookmarkIds';
 const selectedBookmarkIdsSubject = new Subject<SelectBookmarks>();
 export const selectedBookmarkIds$ = currentTable$.pipe(switchMap(table =>
 	selectedBookmarkIdsSubject.asObservable().pipe(
-		scan((acc, value) => {
-			if (value.append) {
-				return [...acc, ...value.bookmarkIds];
+		scan((acc, { append, bookmarkId, deselect }) => {
+			if (deselect) {
+				return acc.filter(id => bookmarkId !== id);
 			}
-			return value.bookmarkIds;
+			if (append) {
+				return [...acc, bookmarkId];
+			}
+			return [bookmarkId];
 		}, getSelectedBookmarkIdsFromLocalStorage(table)),
 		map(uniq),
 		tap(ids => localStorage.setItem(getKey(table), JSON.stringify(ids))),
@@ -25,10 +29,11 @@ export const selectedBookmarkIds$ = currentTable$.pipe(switchMap(table =>
 	),
 ));
 
-export function selectBookmarks(bookmarkIds: Array<string>, append: boolean = false): void {
+export function selectBookmark(bookmarkId: string, append: boolean = false, deselect: boolean = false): void {
 	selectedBookmarkIdsSubject.next({
-		bookmarkIds,
+		bookmarkId,
 		append,
+		deselect,
 	});
 }
 
