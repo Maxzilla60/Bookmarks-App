@@ -3,7 +3,7 @@ import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { type } from 'arktype';
 import { type BookmarkFromDB, type Category, idSchema, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
 import cors from 'cors';
-import { chain, entries, find, keys, remove, uniq } from 'lodash-es';
+import { entries, find, keys, remove, uniq } from 'lodash-es';
 import type { Low } from 'lowdb';
 import { nanoid } from 'nanoid';
 import { backupTables } from './backup';
@@ -119,11 +119,11 @@ const appRouter = router({
 
 			const bookmarks = getBookmarksFromDB(database);
 
-			chain(bookmarks)
+			bookmarks
 				.filter(b => input.ids.includes(b.id))
-				.forEach(b => b.tags.push(input.tag))
-				.forEach(b => b.tags = uniq(b.tags))
-				.value();
+				.forEach(b => {
+					b.tags = uniq([...b.tags, input.tag]);
+				});
 
 			await database.write();
 			return database.data.bookmarks;

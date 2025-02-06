@@ -13,8 +13,8 @@ export function sortBy(sort: BookmarksSort): (a: Bookmark, b: Bookmark) => numbe
 	switch (sort) {
 		case BookmarksSort.POSITION:
 			return sortByPosition;
-		default:
 		case BookmarksSort.VERSUS_SCORE:
+		default:
 			return sortByVersus;
 	}
 }

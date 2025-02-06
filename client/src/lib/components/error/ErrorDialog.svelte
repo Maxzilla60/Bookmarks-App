@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { first, isEqual } from 'lodash';
+	import { first, isEqual, isNil } from 'lodash';
 	import { CheckIcon } from 'lucide-svelte';
 	import { distinctUntilChanged, filter, map, type Observable, tap } from 'rxjs';
 	import { confirmButtonText } from '../../util/util';
@@ -10,7 +10,7 @@
 
 	const error$: Observable<BookMaxError | undefined> = errors$.pipe(
 		map(e => first(e)),
-		map(e => formatErrorMessage(e)),
+		map(formatErrorMessage),
 		tap(e => {
 			const dialogElement = document.getElementById(errorDialogId) as HTMLDialogElement | null;
 			if (e) {
@@ -24,7 +24,7 @@
 	error$.subscribe(e => e && console.error(e));
 
 	const buttonText$ = error$.pipe(
-		filter(error => error !== undefined),
+		filter(error => !isNil(error)),
 		map(confirmButtonText),
 	);
 

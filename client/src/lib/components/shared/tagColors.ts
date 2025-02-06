@@ -8,23 +8,30 @@ import { currentTable$ } from '../../api/data/currentTable$';
 import { type Color, color$ } from '../toolbar/searchbar/components/color/color';
 
 export const tagColors$: Observable<Record<string, string>> = currentTable$.pipe(
-	switchMap(() =>
-		combineLatest([color$, allTags$]).pipe(
-			withLatestFrom(categories$),
-			map(([[globalColor, tags], categories]) => chain(tags)
-				.concat(categories.flatMap(c => c.tags))
-				.uniq()
-				.map(tag => [
-					tag,
-					getColorForTag(tag, globalColor, categories),
-				])
-				.fromPairs()
-				.value(),
-			),
-		),
-	),
+	switchMap(createColorObject$),
 	distinctUntilChanged(isEqual),
 );
+
+function createColorObject$() {
+	return combineLatest([color$, allTags$]).pipe(
+		withLatestFrom(categories$),
+		map(([[globalColor, tags], categories]) =>
+			createColorObject(tags, categories, globalColor),
+		),
+	);
+}
+
+function createColorObject(tags: Array<string>, categories: Array<Category>, globalColor: Color): Record<string, string> {
+	return chain(tags)
+		.concat(categories.flatMap(c => c.tags))
+		.uniq()
+		.map(tag => [
+			tag,
+			getColorForTag(tag, globalColor, categories),
+		])
+		.fromPairs()
+		.value();
+}
 
 function getColorForTag(tag: string, globalColor: Color, categories: Array<Category>): string {
 	const specialColorForTag = categories

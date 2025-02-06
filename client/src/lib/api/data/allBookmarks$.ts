@@ -52,7 +52,7 @@ export const allBookmarks$: Observable<Array<Bookmark>> = bookmarksAndVotes$.pip
 
 export const allTags$: Observable<Array<string>> = allBookmarks$.pipe(
 	map(bookmarks => chain(bookmarks)
-		.flatMap(b => b.tags)
+		.flatMap(({ tags }) => tags)
 		.uniq()
 		.sortBy()
 		.value(),

@@ -12,7 +12,7 @@
 		bookmarks: allBookmarks$,
 		sort: sortType$,
 	}).pipe(
-		map(({ bookmarks, sort }) => [...bookmarks].sort(sortBy(sort))),
+		map(({ bookmarks, sort }) => bookmarks.sort(sortBy(sort))),
 	);
 
 	const bookmarks$: Observable<Array<Bookmark>> = combineLatest({
