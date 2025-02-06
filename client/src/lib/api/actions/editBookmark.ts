@@ -1,5 +1,6 @@
-import type { Bookmark, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark, BookmarkFromDB, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
 import { createBookmarkAction } from '../createAction';
@@ -15,7 +16,7 @@ const { update, updates$ } = createBookmarkAction<Pick<Bookmark, 'id' | 'title' 
 	),
 );
 
-export const editBookmark$ = updates$;
+export const editBookmark$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function editBookmark(id: string, titleAndUrl: TitleAndUrl): void {
 	const success = validate(titleAndUrlSchema, titleAndUrl, 'editBookmark');

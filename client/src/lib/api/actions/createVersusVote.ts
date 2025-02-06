@@ -1,5 +1,5 @@
-import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { switchMap } from 'rxjs';
+import type { Bookmark, VersusVote } from 'bookmarksapp-schemas/schemas';
+import { type Observable, switchMap } from 'rxjs';
 import { client } from '../client';
 import { createVoteAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
@@ -9,7 +9,7 @@ type CreateVersusVoteAction = {
 	losingBookmark: Bookmark
 };
 
-const { update, updates$ } = createVoteAction<CreateVersusVoteAction>(({ winningBookmark, losingBookmark }) => {
+const { update, updates$ } = createVoteAction<CreateVersusVoteAction>(({ winningBookmark, losingBookmark }): Observable<Array<VersusVote>> => {
 	const newVote$ = fromCurrentTable(table =>
 		client.createVote.mutate({
 			table,
@@ -18,6 +18,7 @@ const { update, updates$ } = createVoteAction<CreateVersusVoteAction>(({ winning
 		}),
 	);
 
+	// TODO: Move this logic to BE
 	if (winningBookmark.position > losingBookmark.position) {
 		return newVote$;
 	}
@@ -35,7 +36,7 @@ const { update, updates$ } = createVoteAction<CreateVersusVoteAction>(({ winning
 	);
 });
 
-export const createVersusVote$ = updates$;
+export const createVersusVote$: Observable<Array<VersusVote>> = updates$;
 
 export function createVersusVote(winningBookmark: Bookmark, losingBookmark: Bookmark): void {
 	update({

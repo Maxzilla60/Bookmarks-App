@@ -1,4 +1,5 @@
-import { type Bookmark, tagSchema } from 'bookmarksapp-schemas/schemas';
+import { type Bookmark, type BookmarkFromDB, tagSchema } from 'bookmarksapp-schemas/schemas';
+import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
 import { createBookmarkAction } from '../createAction';
@@ -19,7 +20,7 @@ const { update, updates$ } = createBookmarkAction<TagBookmarkAction>(
 	),
 );
 
-export const tagBookmarks$ = updates$;
+export const tagBookmarks$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function tagBookmarks(bookmarks: Array<Bookmark>, tag: string): void {
 	const success = validate(tagSchema, tag, 'tagBookmarks');

@@ -1,4 +1,5 @@
-import type { Bookmark } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createBookmarkAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
@@ -18,7 +19,7 @@ const { update, updates$ } = createBookmarkAction<RemoveTagFromBookmarkAction>(
 	),
 );
 
-export const removeTagFromBookmark$ = updates$;
+export const removeTagFromBookmark$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function removeTagFromBookmark(bookmark: Bookmark, tagToRemove: string) {
 	update({
