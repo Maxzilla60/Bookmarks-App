@@ -22,7 +22,6 @@ A "ranked" bookmarks managing application. A personal project to tinker with and
 - Wilson score sorting: [decay](https://github.com/clux/decay)
 - State management: [RxJS](https://rxjs.dev)
 - Utility: [lodash](https://lodash.com)
-- Cheating immutability: [immer](https://immerjs.github.io/immer/)
 - Icons: [Lucide](https://lucide.netlify.app)
 
 ### ⚙️ Back-End

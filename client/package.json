@@ -13,7 +13,6 @@
 		"arktype": "^2.0.3",
 		"decay": "^1.0.12",
 		"fuzzysort": "^3.1.0",
-		"immer": "^10.1.1",
 		"lodash": "^4.17.21",
 		"lucide-svelte": "^0.468.0",
 		"nanoid": "^5.0.9",
