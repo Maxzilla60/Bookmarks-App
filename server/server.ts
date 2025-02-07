@@ -171,8 +171,15 @@ const appRouter = router({
 			winningId: idSchema,
 			losingId: idSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<VersusVote>> => {
+		.mutation(async ({ input }): Promise<{ bookmarks: Array<BookmarkFromDB>, votes: Array<VersusVote> }> => {
 			const database = getDatabase(input.table);
+
+			const winningBookmark = getBookmarkByIdFromDB(database, input.winningId);
+			const losingBookmark = getBookmarkByIdFromDB(database, input.losingId);
+
+			if (winningBookmark.position <= losingBookmark.position) {
+				winningBookmark.position = losingBookmark.position + 1;
+			}
 
 			const votes = getVotesFromDB(database);
 			const newVote: VersusVote = {
@@ -184,23 +191,10 @@ const appRouter = router({
 			votes.push(newVote);
 
 			await database.write();
-			return database.data.votes;
-		}),
-	updateBookmarkPosition: procedure
-		.input(type({
-			'...': tablesInputSchema,
-			id: idSchema,
-			newPosition: 'number.integer >= 0',
-		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
-
-			const bookmarkToUpdate = getBookmarkByIdFromDB(database, input.id);
-
-			bookmarkToUpdate.position = input.newPosition;
-
-			await database.write();
-			return database.data.bookmarks;
+			return {
+				bookmarks: database.data.bookmarks,
+				votes: database.data.votes,
+			};
 		}),
 });
 

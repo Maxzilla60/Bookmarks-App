@@ -34,10 +34,11 @@ const bookmarksAndVotes$: BookmarksAndVotesFromDB = currentTable$.pipe(
 			tagBookmarks$,
 			deleteBookmark$,
 			removeTagFromBookmark$,
+			createVersusVote$.pipe(map(({ bookmarks }) => bookmarks)),
 		),
 		votes: merge(
 			client.getVotes.query({ table }),
-			createVersusVote$,
+			createVersusVote$.pipe(map(({ votes }) => votes)),
 		),
 	})),
 );
