@@ -19,7 +19,7 @@ interface BookmarkStats {
 export const stats$: Observable<BookmarkStats> = allBookmarks$.pipe(
 	map(bookmarks => ({
 		bookmarks,
-		tags: uniq(bookmarks.map(b => b.tags).flat()) as Array<string>,
+		tags: uniq(bookmarks.flatMap(b => b.tags)) as Array<string>,
 	})),
 	map(({ bookmarks, tags }) => ({
 		noTags: bookmarks.filter(b => b.tags?.length <= 0).length ?? 0,

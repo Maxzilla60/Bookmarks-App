@@ -29,7 +29,7 @@ export const selectedBookmarkIds$ = currentTable$.pipe(switchMap(table =>
 	),
 ));
 
-export function selectBookmark(bookmarkId: string, append: boolean = false, deselect: boolean = false): void {
+export function selectBookmark(bookmarkId: string, append = false, deselect = false): void {
 	selectedBookmarkIdsSubject.next({
 		bookmarkId,
 		append,
