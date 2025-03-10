@@ -1,6 +1,7 @@
 # 🔖 Max' Bookmarks App
 
-A "ranked" bookmarks managing application. A personal project to tinker with and use in my free time.
+A "ranked" bookmarks managing application.
+A personal project to tinker with and use in my free time.
 
 ## ✨ Features
 
@@ -14,6 +15,13 @@ A "ranked" bookmarks managing application. A personal project to tinker with and
 - 🎨 Random UI color
 
 ## 🔨 Tech
+
+<a href="https://gitmoji.dev">
+  <img
+    src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat"
+    alt="Gitmoji"
+  />
+</a>
 
 ### 🖼️ Front-End
 
