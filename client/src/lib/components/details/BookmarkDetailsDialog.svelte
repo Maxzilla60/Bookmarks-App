@@ -4,7 +4,7 @@
 	import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 	import { isNil } from 'lodash';
 	import { CheckIcon, PencilIcon } from 'lucide-svelte';
-	import { combineLatest, filter, first, map, merge, Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+	import { combineLatest, filter, first, map, merge, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 	import { editBookmark } from '../../api/actions/editBookmark';
 	import { calculateVersusScore, confirmButtonText } from '../../util/util';
 	import PopUp from '../shared/popup/PopUp.svelte';

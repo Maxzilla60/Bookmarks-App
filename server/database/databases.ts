@@ -2,7 +2,7 @@ import type { BookmarkFromDB, Category, VersusVote } from 'bookmarksapp-schemas/
 import { databaseSchema } from 'bookmarksapp-schemas/schemas';
 import fs from 'fs';
 import { endsWith, fromPairs, isEmpty, replace } from 'lodash-es';
-import { Low } from 'lowdb';
+import type { Low } from 'lowdb';
 import { JSONFilePreset } from 'lowdb/node';
 
 export type DbContents = {

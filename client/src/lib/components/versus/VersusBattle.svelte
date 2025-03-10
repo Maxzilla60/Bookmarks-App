@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { SwordsIcon } from 'lucide-svelte';
-	import { map, Observable, startWith } from 'rxjs';
+	import { map, type Observable, startWith } from 'rxjs';
 	import VersusBookmark from './components/VersusBookmark.svelte';
 	import { type VersusBattle, versusBattle$ } from './versusBattle$';
 

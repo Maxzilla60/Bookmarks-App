@@ -1,5 +1,5 @@
 import { first, isNil } from 'lodash';
-import { BehaviorSubject, Observable, shareReplay, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
 import { showError } from '../../components/error/errors$';
 import { client } from '../client';
 

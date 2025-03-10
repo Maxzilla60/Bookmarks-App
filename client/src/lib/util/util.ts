@@ -2,7 +2,7 @@ import type { Bookmark, VersusStats } from 'bookmarksapp-schemas/schemas';
 import { wilsonScore } from 'decay';
 import fuzzysort from 'fuzzysort';
 import { sample } from 'lodash';
-import { filter, fromEvent, Observable } from 'rxjs';
+import { filter, fromEvent, type Observable } from 'rxjs';
 import { BookmarksSort } from './sort.enum';
 
 export function randomChoice<T>(array: Array<T>): T {

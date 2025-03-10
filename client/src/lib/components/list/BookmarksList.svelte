@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-	import { combineLatest, map, Observable, startWith } from 'rxjs';
+	import { combineLatest, map, type Observable, startWith } from 'rxjs';
 	import { allBookmarks$ } from '../../api/data/allBookmarks$';
 	import { fromCtrlShortcut, fuzzySearch, sortBy } from '../../util/util';
 	import BookmarkDetailsDialog from '../details/BookmarkDetailsDialog.svelte';

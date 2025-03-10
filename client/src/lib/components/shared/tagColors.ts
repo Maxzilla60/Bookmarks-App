@@ -1,7 +1,7 @@
 import type { Category } from 'bookmarksapp-schemas/schemas';
 import { chain, isEqual, isNil } from 'lodash';
 import randomColor from 'randomcolor';
-import { combineLatest, distinctUntilChanged, map, Observable, switchMap, withLatestFrom } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, type Observable, switchMap, withLatestFrom } from 'rxjs';
 import { allTags$ } from '../../api/data/allBookmarks$';
 import { categories$ } from '../../api/data/categories$';
 import { currentTable$ } from '../../api/data/currentTable$';

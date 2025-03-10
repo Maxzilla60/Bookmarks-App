@@ -1,7 +1,7 @@
 import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
 import { bookmarkSchema } from 'bookmarksapp-schemas/schemas';
 import { chain, isEqual } from 'lodash';
-import { catchError, combineLatest, distinctUntilChanged, map, merge, Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, distinctUntilChanged, map, merge, type Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
 import { validate } from '../../util/validate';
 import { createBookmarks$ } from '../actions/createBookmarks';
 import { createVersusVote$ } from '../actions/createVersusVote';

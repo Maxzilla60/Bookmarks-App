@@ -1,5 +1,5 @@
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { combineLatest, map, Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+import { combineLatest, map, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { allBookmarks$ } from '../../api/data/allBookmarks$';
 import { currentTable$ } from '../../api/data/currentTable$';
 import { randomChoice } from '../../util/util';

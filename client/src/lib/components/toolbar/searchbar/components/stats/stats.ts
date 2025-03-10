@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import { map, Observable } from 'rxjs';
+import { map, type Observable } from 'rxjs';
 import { allBookmarks$ } from '../../../../../api/data/allBookmarks$';
 
 interface BookmarkStats {

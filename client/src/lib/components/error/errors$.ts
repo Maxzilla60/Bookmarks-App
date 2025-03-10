@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, type Observable } from 'rxjs';
 
 export interface BookMaxError {
 	id: string;

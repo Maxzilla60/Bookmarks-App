@@ -1,5 +1,5 @@
 import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
-import { type Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';

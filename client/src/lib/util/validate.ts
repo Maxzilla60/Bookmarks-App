@@ -1,4 +1,4 @@
-import { type, Type } from 'arktype';
+import { type Type, type } from 'arktype';
 import { showError } from '../components/error/errors$';
 
 export function validate(schema: Type<unknown, {}>, obj: any, title: string): boolean {
