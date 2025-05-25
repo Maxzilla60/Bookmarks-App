@@ -10,10 +10,11 @@
 	"scripts": {
 		"start": "npx concurrently -n \"server,client\" -c \"magenta,yellow\" \"npm run server\" \"npx wait-on http://localhost:3000 && npm run client\"",
 		"server": "npm run start --workspace=server",
-		"client": "npm run start --workspace=client"
+		"client": "npm run start --workspace=client",
+		"upgrade": "npx npm-check-updates -u & npm i"
 	},
 	"devDependencies": {
-		"concurrently": "^9.1.0",
+		"concurrently": "^9.1.2",
 		"wait-for": "^2.1.1"
 	}
 }

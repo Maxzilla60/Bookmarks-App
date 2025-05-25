@@ -3,22 +3,23 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"start": "tsx server.ts"
+		"start": "tsx server.ts",
+		"upgrade": "npx npm-check-updates -u & npm i"
 	},
 	"dependencies": {
-		"@trpc/server": "^10.45.2",
+		"@trpc/server": "^11.1.2",
 		"cors": "^2.8.5",
 		"lodash-es": "^4.17.21",
 		"lowdb": "^7.0.1",
-		"nanoid": "^5.0.9"
+		"nanoid": "^5.1.5"
 	},
 	"devDependencies": {
 		"@tsconfig/svelte": "^5.0.4",
-		"@types/cors": "^2.8.17",
+		"@types/cors": "^2.8.18",
 		"@types/lodash-es": "^4.17.12",
-		"@types/node": "^22.10.1",
-		"tsx": "^4.19.2",
+		"@types/node": "^22.15.21",
+		"tsx": "^4.19.4",
 		"tslib": "^2.8.1",
-		"typescript": "~5.6.2"
+		"typescript": "~5.8.3"
 	}
 }

@@ -2,9 +2,12 @@
 	"name": "bookmarksapp-schemas",
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"upgrade": "npx npm-check-updates -u & npm i"
+	},
 	"dependencies": {
-		"arktype": "^2.0.3",
+		"arktype": "^2.1.20",
 		"lodash-es": "^4.17.21",
-		"nanoid": "^5.0.9"
+		"nanoid": "^5.1.5"
 	}
 }
