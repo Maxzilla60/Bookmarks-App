@@ -1,5 +1,5 @@
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { combineLatest, map, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+import { map, type Observable, shareReplay, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { allBookmarks$ } from '../../api/data/allBookmarks$';
 import { currentTable$ } from '../../api/data/currentTable$';
 import { randomChoice } from '../../util/util';
@@ -16,21 +16,20 @@ type VersusBattleIds = {
 
 const initNewVersusBattleSubject = new Subject<void>();
 export const versusBattle$: Observable<VersusBattle> = currentTable$.pipe(
-	switchMap(() => combineLatest({
-			bookmarks: allBookmarks$,
-			ids: initNewVersusBattleSubject.asObservable().pipe(
-				withLatestFrom(allBookmarks$),
-				map(([, bookmarks]) => bookmarks),
-				map(createVersusIds),
-			),
-		}).pipe(
-			map(({ bookmarks, ids }) => ({
+	switchMap(() => initNewVersusBattleSubject.asObservable().pipe(
+		withLatestFrom(allBookmarks$),
+		map(([, bookmarks]) => bookmarks),
+		map(createVersusIds),
+		switchMap(ids => allBookmarks$.pipe(
+			map(bookmarks => ({
 				leftCorner: bookmarks.find(b => b.id === ids.leftCorner),
 				rightCorner: bookmarks.find(b => b.id === ids.rightCorner),
 			})),
+		)),
 			startWith({} as VersusBattle),
 		),
 	),
+	shareReplay({ bufferSize: 1, refCount: true }),
 );
 
 export function newVersusBattle(): void {
