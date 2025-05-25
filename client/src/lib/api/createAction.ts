@@ -1,15 +1,38 @@
 import type { BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
-import { concatMap, type Observable, Subject } from 'rxjs';
+import { nanoid } from 'nanoid';
+import { concatMap, finalize, type Observable, Subject, tap } from 'rxjs';
+import { toast } from 'svelte-sonner';
 
 type Action<T, R> = {
 	updates$: Observable<R>;
 	update: (body: T) => void;
 }
 
-export function createAction<T, R>(fn: (body: T) => Observable<R>): Action<T, R> {
+export type ToastMessages<T> = {
+	loadingMessage?: (body: T) => string;
+	successMessage?: (body: T) => string;
+}
+
+export function createAction<T, R>(action: (body: T) => Observable<R>, { loadingMessage, successMessage }: ToastMessages<T> = {}): Action<T, R> {
 	const subject: Subject<T> = new Subject<T>();
+	const toastId = nanoid();
 	const updates$ = subject.asObservable().pipe(
-		concatMap(fn),
+		tap(body => {
+			if (loadingMessage) {
+				toast.loading(loadingMessage(body), { id: toastId });
+			}
+		}),
+		concatMap(body => {
+			return action(body).pipe(
+				finalize(() => {
+					if (successMessage) {
+						toast.success(successMessage(body), { id: toastId });
+					} else {
+						toast.dismiss(toastId);
+					}
+				}),
+			);
+		}),
 	);
 
 	return {
@@ -18,6 +41,6 @@ export function createAction<T, R>(fn: (body: T) => Observable<R>): Action<T, R>
 	};
 }
 
-export function createBookmarkAction<T>(fn: (body: T) => Observable<Array<BookmarkFromDB>>): Action<T, Array<BookmarkFromDB>> {
-	return createAction<T, Array<BookmarkFromDB>>(fn);
+export function createBookmarkAction<T>(action: (body: T) => Observable<Array<BookmarkFromDB>>, toastMessages: ToastMessages<T> = {}): Action<T, Array<BookmarkFromDB>> {
+	return createAction(action, toastMessages);
 }

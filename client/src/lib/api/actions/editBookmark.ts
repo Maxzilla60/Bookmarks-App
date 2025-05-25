@@ -14,6 +14,10 @@ const { update, updates$ } = createBookmarkAction<Pick<Bookmark, 'id' | 'title' 
 			titleAndUrl: params,
 		}),
 	),
+	{
+		loadingMessage: (params) => `Editing "${params.title}"...`,
+		successMessage: () => 'Bookmark edited!',
+	},
 );
 
 export const editBookmark$: Observable<Array<BookmarkFromDB>> = updates$;

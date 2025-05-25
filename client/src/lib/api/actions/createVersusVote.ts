@@ -22,6 +22,10 @@ const { update, updates$ } = createAction<CreateVersusVoteAction, BookmarksAndVo
 			losingId: losingBookmark.id,
 		}),
 	),
+	{
+		loadingMessage: ({ winningBookmark }) => `Voting for "${winningBookmark.title}"...`,
+		successMessage: ({ winningBookmark }) => `Voted for "${winningBookmark.title}"!`,
+	},
 );
 
 export const createVersusVote$: Observable<BookmarksAndVotes> = updates$;

@@ -18,6 +18,20 @@ const { update, updates$ } = createBookmarkAction<TagBookmarkAction>(
 			tag,
 		}),
 	),
+	{
+		loadingMessage: ({ bookmarks, tag }) => {
+			if (bookmarks.length === 1) {
+				return `Tagging bookmark with "${tag}"...`;
+			}
+			return `Tagging ${bookmarks.length} bookmarks with "${tag}"...`;
+		},
+		successMessage: ({ bookmarks }) => {
+			if (bookmarks.length === 1) {
+				return 'Bookmark tagged!';
+			}
+			return 'Bookmarks tagged!';
+		},
+	},
 );
 
 export const tagBookmarks$: Observable<Array<BookmarkFromDB>> = updates$;

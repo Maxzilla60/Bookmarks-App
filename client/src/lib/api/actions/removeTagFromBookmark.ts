@@ -17,6 +17,10 @@ const { update, updates$ } = createBookmarkAction<RemoveTagFromBookmarkAction>(
 			tag: tagToRemove,
 		}),
 	),
+	{
+		loadingMessage: ({ bookmark, tagToRemove }) => `Removing tag "${tagToRemove}" from "${bookmark.title}"...`,
+		successMessage: () => 'Tag removed!',
+	},
 );
 
 export const removeTagFromBookmark$: Observable<Array<BookmarkFromDB>> = updates$;

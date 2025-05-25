@@ -11,6 +11,10 @@ const { update, updates$ } = createBookmarkAction<Bookmark>(
 			id: bookmark.id,
 		}),
 	),
+	{
+		loadingMessage: (bookmark) => `Deleting "${bookmark.title}"...`,
+		successMessage: () => 'Bookmark deleted!',
+	},
 );
 
 export const deleteBookmark$: Observable<Array<BookmarkFromDB>> = updates$;

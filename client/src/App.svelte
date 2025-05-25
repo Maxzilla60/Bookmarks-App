@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Toaster } from 'svelte-sonner';
 	import ErrorDialog from './lib/components/error/ErrorDialog.svelte';
 	import BookmarksList from './lib/components/list/BookmarksList.svelte';
 	import SearchBar from './lib/components/toolbar/searchbar/SearchBar.svelte';
@@ -7,6 +8,11 @@
 	import './styles.css';
 </script>
 
+<Toaster
+	position="bottom-center"
+	expand
+	richColors
+/>
 <ErrorDialog/>
 <div id="tool_bar">
 	<SearchBar/>
