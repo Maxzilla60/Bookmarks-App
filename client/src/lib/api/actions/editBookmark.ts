@@ -1,5 +1,6 @@
 import type { Bookmark, BookmarkFromDB, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import { PencilIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
@@ -17,6 +18,7 @@ const { update, updates$ } = createBookmarkAction<Pick<Bookmark, 'id' | 'title' 
 	{
 		loadingMessage: (params) => `Editing "${params.title}"...`,
 		successMessage: () => 'Bookmark edited!',
+		successIcon: PencilIcon,
 	},
 );
 

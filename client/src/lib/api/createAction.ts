@@ -2,6 +2,7 @@ import type { BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
 import { nanoid } from 'nanoid';
 import { concatMap, finalize, type Observable, Subject, tap } from 'rxjs';
 import { toast } from 'svelte-sonner';
+import type { AnyComponent } from 'svelte-sonner/dist/types';
 
 type Action<T, R> = {
 	updates$: Observable<R>;
@@ -11,9 +12,10 @@ type Action<T, R> = {
 export type ToastMessages<T> = {
 	loadingMessage?: (body: T) => string;
 	successMessage?: (body: T) => string;
+	successIcon?: AnyComponent;
 }
 
-export function createAction<T, R>(action: (body: T) => Observable<R>, { loadingMessage, successMessage }: ToastMessages<T> = {}): Action<T, R> {
+export function createAction<T, R>(action: (body: T) => Observable<R>, { loadingMessage, successMessage, successIcon }: ToastMessages<T> = {}): Action<T, R> {
 	const subject: Subject<T> = new Subject<T>();
 	const toastId = nanoid();
 	const updates$ = subject.asObservable().pipe(
@@ -26,7 +28,7 @@ export function createAction<T, R>(action: (body: T) => Observable<R>, { loading
 			return action(body).pipe(
 				finalize(() => {
 					if (successMessage) {
-						toast.success(successMessage(body), { id: toastId });
+						toast.success(successMessage(body), { id: toastId, icon: successIcon });
 					} else {
 						toast.dismiss(toastId);
 					}

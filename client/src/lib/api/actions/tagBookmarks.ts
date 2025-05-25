@@ -1,4 +1,5 @@
 import { type Bookmark, type BookmarkFromDB, tagSchema } from 'bookmarksapp-schemas/schemas';
+import { TagIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
@@ -31,6 +32,7 @@ const { update, updates$ } = createBookmarkAction<TagBookmarkAction>(
 			}
 			return 'Bookmarks tagged!';
 		},
+		successIcon: TagIcon,
 	},
 );
 

@@ -1,4 +1,5 @@
 import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import { ToiletIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createBookmarkAction } from '../createAction';
@@ -14,6 +15,7 @@ const { update, updates$ } = createBookmarkAction<Bookmark>(
 	{
 		loadingMessage: (bookmark) => `Deleting "${bookmark.title}"...`,
 		successMessage: () => 'Bookmark deleted!',
+		successIcon: ToiletIcon,
 	},
 );
 

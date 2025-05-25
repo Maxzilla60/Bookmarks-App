@@ -1,5 +1,6 @@
 import type { BookmarkFromDB, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import { BookmarkCheckIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
@@ -28,6 +29,7 @@ const { update, updates$ } = createBookmarkAction<Array<TitleAndUrl>>(newBookmar
 			}
 			return `Created ${newBookmarks.length} bookmarks!`;
 		},
+		successIcon: BookmarkCheckIcon,
 	},
 );
 

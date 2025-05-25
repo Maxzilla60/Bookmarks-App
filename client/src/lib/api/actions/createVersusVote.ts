@@ -1,4 +1,5 @@
 import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
+import { StarIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createAction } from '../createAction';
@@ -25,6 +26,7 @@ const { update, updates$ } = createAction<CreateVersusVoteAction, BookmarksAndVo
 	{
 		loadingMessage: ({ winningBookmark }) => `Voting for "${winningBookmark.title}"...`,
 		successMessage: ({ winningBookmark }) => `Voted for "${winningBookmark.title}"!`,
+		successIcon: StarIcon,
 	},
 );
 

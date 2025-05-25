@@ -1,4 +1,5 @@
 import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import { TagIcon } from 'lucide-svelte';
 import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createBookmarkAction } from '../createAction';
@@ -20,6 +21,7 @@ const { update, updates$ } = createBookmarkAction<RemoveTagFromBookmarkAction>(
 	{
 		loadingMessage: ({ bookmark, tagToRemove }) => `Removing tag "${tagToRemove}" from "${bookmark.title}"...`,
 		successMessage: () => 'Tag removed!',
+		successIcon: TagIcon,
 	},
 );
 
