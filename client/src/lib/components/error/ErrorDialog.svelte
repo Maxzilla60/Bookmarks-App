@@ -53,13 +53,12 @@
 
 <style>
 	p {
+		overflow: scroll;
 		height: 100%;
+		width: 100%;
 		margin: 0;
 		color: white;
-		font-size: larger;
 		text-align: center;
-		display: flex;
 		align-items: center;
-		justify-content: center;
 	}
 </style>
