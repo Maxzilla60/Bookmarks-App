@@ -1,11 +1,10 @@
-import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 import { ToiletIcon } from 'lucide-svelte';
-import type { Observable } from 'rxjs';
 import { client } from '../client';
-import { createBookmarkAction } from '../createAction';
+import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
 
-const { update, updates$ } = createBookmarkAction<Bookmark>(
+const update = createAction<Bookmark>(
 	bookmark => fromCurrentTable(table =>
 		client.deleteBookmark.mutate({
 			table,
@@ -18,8 +17,6 @@ const { update, updates$ } = createBookmarkAction<Bookmark>(
 		successIcon: ToiletIcon,
 	},
 );
-
-export const deleteBookmark$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function deleteBookmark(bookmark: Bookmark): void {
 	update(bookmark);

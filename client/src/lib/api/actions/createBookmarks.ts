@@ -1,13 +1,13 @@
-import type { BookmarkFromDB, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
+import type { TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 import { BookmarkCheckIcon } from 'lucide-svelte';
-import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
-import { createBookmarkAction } from '../createAction';
+import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
 
-const { update, updates$ } = createBookmarkAction<Array<TitleAndUrl>>(newBookmarks => fromCurrentTable(table =>
+const update = createAction<Array<TitleAndUrl>>(
+	newBookmarks => fromCurrentTable(table =>
 		client.createBookmarks.mutate({
 			table,
 			newBookmarks,
@@ -30,10 +30,7 @@ const { update, updates$ } = createBookmarkAction<Array<TitleAndUrl>>(newBookmar
 			return `Created ${newBookmarks.length} bookmarks!`;
 		},
 		successIcon: BookmarkCheckIcon,
-	},
-);
-
-export const createBookmarks$: Observable<Array<BookmarkFromDB>> = updates$;
+	});
 
 export function createBookmarks(titleAndUrls: Array<TitleAndUrl>): void {
 	const success = validate(titleAndUrlSchema.array(), titleAndUrls, 'createBookmarks');
