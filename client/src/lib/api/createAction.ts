@@ -1,13 +1,9 @@
-import type { BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
 import { nanoid } from 'nanoid';
 import { concatMap, finalize, type Observable, Subject, tap } from 'rxjs';
 import { toast } from 'svelte-sonner';
 import type { AnyComponent } from 'svelte-sonner/dist/types';
 
-type Action<T, R> = {
-	updates$: Observable<R>;
-	update: (body: T) => void;
-}
+type Action<T> = (body: T) => void;
 
 export type ToastMessages<T> = {
 	loadingMessage?: (body: T) => string;
@@ -15,34 +11,32 @@ export type ToastMessages<T> = {
 	successIcon?: AnyComponent;
 }
 
-export function createAction<T, R>(action: (body: T) => Observable<R>, { loadingMessage, successMessage, successIcon }: ToastMessages<T> = {}): Action<T, R> {
-	const subject: Subject<T> = new Subject<T>();
+export function createAction<T>(
+	action: (body: T) => Observable<unknown>,
+	{ loadingMessage, successMessage, successIcon }: ToastMessages<T> = {},
+): Action<T> {
+	const subject = new Subject<T>();
 	const toastId = nanoid();
-	const updates$ = subject.asObservable().pipe(
+
+	subject.asObservable().pipe(
 		tap(body => {
 			if (loadingMessage) {
 				toast.loading(loadingMessage(body), { id: toastId });
 			}
 		}),
 		concatMap(body => {
-			return action(body).pipe(
-				finalize(() => {
-					if (successMessage) {
-						toast.success(successMessage(body), { id: toastId, icon: successIcon });
-					} else {
-						toast.dismiss(toastId);
-					}
-				}),
-			);
-		}),
-	);
+				return action(body).pipe(
+					finalize(() => {
+						if (successMessage) {
+							toast.success(successMessage(body), { id: toastId, icon: successIcon });
+						} else {
+							toast.dismiss(toastId);
+						}
+					}),
+				);
+			},
+		),
+	).subscribe();
 
-	return {
-		updates$,
-		update: (body: T) => subject.next(body),
-	};
-}
-
-export function createBookmarkAction<T>(action: (body: T) => Observable<Array<BookmarkFromDB>>, toastMessages: ToastMessages<T> = {}): Action<T, Array<BookmarkFromDB>> {
-	return createAction(action, toastMessages);
+	return (body: T) => subject.next(body);
 }

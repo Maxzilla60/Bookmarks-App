@@ -1,36 +1,47 @@
 import type { BookmarkFromDB, Category, VersusVote } from 'bookmarksapp-schemas/schemas';
-import { databaseSchema } from 'bookmarksapp-schemas/schemas';
-import fs from 'fs';
 import { endsWith, fromPairs, isEmpty, replace } from 'lodash-es';
-import type { Low } from 'lowdb';
-import { JSONFilePreset } from 'lowdb/node';
-
-export type DbContents = {
-	emoji: string;
-	bookmarks: Array<BookmarkFromDB>;
-	votes: Array<VersusVote>;
-	categories: Array<Category>;
-}
+import { LowSync } from 'lowdb';
+import { JSONFileSync } from 'lowdb/node';
+import fs from 'node:fs';
+import { BehaviorSubject, type Observable } from 'rxjs';
 
 const tablesPath = 'database/tables';
 
-export const databases = await getDatabases();
-
-type DataBase = {
+type TableData = {
 	emoji: string;
-	database: Low<DbContents>;
+	bookmarks: BookmarkFromDB[];
+	votes: VersusVote[];
+	categories: Category[];
 };
 
-async function getDatabases(): Promise<Record<string, DataBase>> {
-	const tables = [];
+/** The two arrays that mutations are allowed to modify. */
+type MutableData = Pick<TableData, 'bookmarks' | 'votes'>;
+
+export type TableEntry = {
+	/** Display emoji loaded from JSON. */
+	emoji: string;
+	/** Read-only categories loaded from JSON. */
+	categories: Category[];
+	/** Live Observable of all bookmarks — replays the current value on subscription. */
+	bookmarks$: Observable<BookmarkFromDB[]>;
+	/** Live Observable of all votes — replays the current value on subscription. */
+	votes$: Observable<VersusVote[]>;
+	/**
+	 * Apply a synchronous mutation to bookmarks/votes, write the JSON file,
+	 * then broadcast the updated arrays to any active subscribers.
+	 */
+	mutate: (fn: (data: MutableData) => void) => void;
+};
+
+export const databases: Record<string, TableEntry> = initDatabases();
+
+function initDatabases(): Record<string, TableEntry> {
+	const tables: Array<[string, TableEntry]> = [];
+
 	for (const fileName of fs.readdirSync(tablesPath)) {
 		if (endsWith(fileName, '.json')) {
 			const tableName = replace(fileName, '.json', '');
-			const database = await createRepository(tableName);
-			tables.push([tableName, {
-				database,
-				emoji: database.data.emoji,
-			}]);
+			tables.push([tableName, openTableEntry(tableName)]);
 		}
 	}
 
@@ -41,14 +52,31 @@ async function getDatabases(): Promise<Record<string, DataBase>> {
 	return fromPairs(tables);
 }
 
-async function createRepository(table: string): Promise<Low<DbContents>> {
-	const db = await JSONFilePreset<DbContents>(`${tablesPath}/${table}.json`, {
+function openTableEntry(tableName: string): TableEntry {
+	const db = new LowSync<TableData>(new JSONFileSync<TableData>(`${tablesPath}/${tableName}.json`), {
 		emoji: '🔖',
 		bookmarks: [],
 		votes: [],
 		categories: [],
 	});
 	db.read();
-	databaseSchema.assert(db.data);
-	return db;
+
+	const bookmarksSubject = new BehaviorSubject<BookmarkFromDB[]>(db.data.bookmarks);
+	const votesSubject = new BehaviorSubject<VersusVote[]>(db.data.votes);
+
+	const mutate = (fn: (data: MutableData) => void): void => {
+		fn(db.data);
+		db.write();
+		// Emit shallow copies so subscribers always see a new reference.
+		bookmarksSubject.next([...db.data.bookmarks]);
+		votesSubject.next([...db.data.votes]);
+	};
+
+	return {
+		emoji: db.data.emoji,
+		categories: db.data.categories,
+		bookmarks$: bookmarksSubject.asObservable(),
+		votes$: votesSubject.asObservable(),
+		mutate,
+	};
 }

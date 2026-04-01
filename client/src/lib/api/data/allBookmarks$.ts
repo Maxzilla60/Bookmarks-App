@@ -1,47 +1,28 @@
-import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
 import { bookmarkSchema } from 'bookmarksapp-schemas/schemas';
 import { chain, isEqual } from 'lodash';
-import { catchError, combineLatest, distinctUntilChanged, map, merge, type Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, distinctUntilChanged, map, type Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
 import { validate } from '../../util/validate';
-import { createBookmarks$ } from '../actions/createBookmarks';
-import { createVersusVote$ } from '../actions/createVersusVote';
-import { deleteBookmark$ } from '../actions/deleteBookmark';
-import { editBookmark$ } from '../actions/editBookmark';
-import { removeTagFromBookmark$ } from '../actions/removeTagFromBookmark';
-import { tagBookmarks$ } from '../actions/tagBookmarks';
-import { visitBookmark$ } from '../actions/visitBookmark';
 import { client } from '../client';
+import { fromSubscription } from '../fromSubscription';
 import { currentTable$ } from './currentTable$';
 
-interface VersusVote {
-	id: string,
-	winner: string,
-	loser: string,
-}
-
-type BookmarksAndVotesFromDB = Observable<{
+type BookmarksAndVotesFromDB = {
 	bookmarks: Array<BookmarkFromDB>,
 	votes: Array<VersusVote>
-}>;
+};
 
-const bookmarksAndVotes$: BookmarksAndVotesFromDB = currentTable$.pipe(
-	switchMap(table => combineLatest({
-		bookmarks: merge(
-			client.getBookmarks.query({ table }),
-			createBookmarks$,
-			editBookmark$,
-			visitBookmark$,
-			tagBookmarks$,
-			deleteBookmark$,
-			removeTagFromBookmark$,
-			createVersusVote$.pipe(map(({ bookmarks }) => bookmarks)),
-		),
-		votes: merge(
-			client.getVotes.query({ table }),
-			createVersusVote$.pipe(map(({ votes }) => votes)),
-		),
-	})),
-);
+const bookmarksAndVotes$: Observable<BookmarksAndVotesFromDB> =
+	currentTable$.pipe(
+		switchMap(table => combineLatest({
+			bookmarks: fromSubscription<Array<BookmarkFromDB>>(callbacks =>
+				client.watchBookmarks.subscribe({ table }, callbacks),
+			),
+			votes: fromSubscription<Array<VersusVote>>(callbacks =>
+				client.watchVotes.subscribe({ table }, callbacks),
+			),
+		})),
+	);
 
 export const allBookmarks$: Observable<Array<Bookmark>> = bookmarksAndVotes$.pipe(
 	map(({ bookmarks, votes }) => bookmarks.map(b => appendVersusToBookmark(b, votes))),

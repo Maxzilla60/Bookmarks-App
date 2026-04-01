@@ -1,6 +1,5 @@
-import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 import { StarIcon } from 'lucide-svelte';
-import type { Observable } from 'rxjs';
 import { client } from '../client';
 import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
@@ -10,12 +9,7 @@ type CreateVersusVoteAction = {
 	losingBookmark: Bookmark
 };
 
-type BookmarksAndVotes = {
-	bookmarks: Array<BookmarkFromDB>,
-	votes: Array<VersusVote>
-};
-
-const { update, updates$ } = createAction<CreateVersusVoteAction, BookmarksAndVotes>(
+const update = createAction<CreateVersusVoteAction>(
 	({ winningBookmark, losingBookmark }) => fromCurrentTable(table =>
 		client.createVote.mutate({
 			table,
@@ -29,8 +23,6 @@ const { update, updates$ } = createAction<CreateVersusVoteAction, BookmarksAndVo
 		successIcon: StarIcon,
 	},
 );
-
-export const createVersusVote$: Observable<BookmarksAndVotes> = updates$;
 
 export function createVersusVote(winningBookmark: Bookmark, losingBookmark: Bookmark): void {
 	update({

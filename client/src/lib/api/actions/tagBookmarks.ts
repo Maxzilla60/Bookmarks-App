@@ -1,9 +1,8 @@
-import { type Bookmark, type BookmarkFromDB, tagSchema } from 'bookmarksapp-schemas/schemas';
+import { type Bookmark, tagSchema } from 'bookmarksapp-schemas/schemas';
 import { TagIcon } from 'lucide-svelte';
-import type { Observable } from 'rxjs';
 import { validate } from '../../util/validate';
 import { client } from '../client';
-import { createBookmarkAction } from '../createAction';
+import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
 
 type TagBookmarkAction = {
@@ -11,7 +10,7 @@ type TagBookmarkAction = {
 	tag: string
 };
 
-const { update, updates$ } = createBookmarkAction<TagBookmarkAction>(
+const update = createAction<TagBookmarkAction>(
 	({ bookmarks, tag }) => fromCurrentTable(table =>
 		client.tagBookmarks.mutate({
 			table,
@@ -35,8 +34,6 @@ const { update, updates$ } = createBookmarkAction<TagBookmarkAction>(
 		successIcon: TagIcon,
 	},
 );
-
-export const tagBookmarks$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function tagBookmarks(bookmarks: Array<Bookmark>, tag: string): void {
 	const success = validate(tagSchema, tag, 'tagBookmarks');

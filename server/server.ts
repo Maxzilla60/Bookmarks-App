@@ -1,56 +1,47 @@
 import { initTRPC } from '@trpc/server';
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
+import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { type } from 'arktype';
 import { type BookmarkFromDB, type Category, idSchema, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
 import cors from 'cors';
-import { entries, find, keys, remove, uniq } from 'lodash-es';
-import type { Low } from 'lowdb';
+import { entries, keys, uniq } from 'lodash-es';
 import { nanoid } from 'nanoid';
+import { otag as toAsyncGenerator } from 'observable-to-async-generator';
+import { fromEvent, NEVER, Observable, takeUntil } from 'rxjs';
+import { WebSocketServer } from 'ws';
 import { backupTables } from './backup';
-import { databases, type DbContents } from './database/databases';
+import { databases, type TableEntry } from './database/databases';
+
+function toAborted(signal: AbortSignal | undefined): Observable<Event> {
+	if (!signal) {
+		return NEVER;
+	}
+	return fromEvent(signal, 'abort', { once: true });
+}
 
 const t = initTRPC.create();
 export const router = t.router;
 export const procedure = t.procedure;
 
-function getDatabase(table: string): Low<DbContents> {
-	return databases[table]!.database;
-}
-
-function getBookmarksFromDB(database: Low<DbContents>): Array<BookmarkFromDB> {
-	const { bookmarks } = database.data;
-	return bookmarks;
-}
-
-function getVotesFromDB(database: Low<DbContents>): Array<VersusVote> {
-	const { votes } = database.data;
-	return votes;
-}
-
-function getBookmarkByIdFromDB(database: Low<DbContents>, id: string): BookmarkFromDB {
-	const bookmarks = getBookmarksFromDB(database);
-	return find(bookmarks, { id })!;
-}
-
 const tablesInputSchema = type({
 	table: type.enumerated(...keys(databases)),
 });
 
+function getTable(table: string): TableEntry {
+	return databases[table]!;
+}
+
+function findBookmarkByID(bookmarks: BookmarkFromDB[], id: string): BookmarkFromDB {
+	return bookmarks.find(b => b.id === id)!;
+}
+
 const appRouter = router({
-	getBookmarks: procedure
-		.input(tablesInputSchema.assert)
-		.query(({ input }): Array<BookmarkFromDB> => getDatabase(input.table).data.bookmarks),
-	getVotes: procedure
-		.input(tablesInputSchema.assert)
-		.query(({ input }): Array<VersusVote> => getDatabase(input.table).data.votes),
 	getCategories: procedure
 		.input(tablesInputSchema.assert)
-		.query(({ input }): Array<Category> => getDatabase(input.table).data.categories),
+		.query(({ input }): Array<Category> => getTable(input.table).categories),
+
 	getTables: procedure.query((): Array<{ name: string, emoji: string }> =>
-		entries(databases).map(([name, { emoji }]) => ({
-			name,
-			emoji,
-		})),
+		entries(databases).map(([name, { emoji }]) => ({ name, emoji })),
 	),
 
 	createBookmarks: procedure
@@ -58,111 +49,103 @@ const appRouter = router({
 			'...': tablesInputSchema,
 			newBookmarks: titleAndUrlSchema.array(),
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarks = getBookmarksFromDB(database);
-			const newBookmarks = input.newBookmarks.map(({ title, url }) => ({
-				id: nanoid(),
-				title,
-				url,
-				tags: [],
-				visitCount: 0,
-				position: 0,
-			}));
+			entry.mutate(({ bookmarks }) => {
+				const newBookmarks = input.newBookmarks.map(({ title, url }) => ({
+					id: nanoid(),
+					title,
+					url,
+					tags: [] as string[],
+					visitCount: 0,
+					position: 0,
+				}));
 
-			newBookmarks.forEach(newBookmark => bookmarks.push(newBookmark));
-
-			await database.write();
-			return database.data.bookmarks;
+				bookmarks.push(...newBookmarks);
+			});
 		}),
+
 	editBookmark: procedure
 		.input(type({
 			'...': tablesInputSchema,
 			id: idSchema,
 			titleAndUrl: titleAndUrlSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarkToUpdate = getBookmarkByIdFromDB(database, input.id);
+			entry.mutate(({ bookmarks }) => {
+				const bookmarkToUpdate = findBookmarkByID(bookmarks, input.id);
 
-			bookmarkToUpdate.title = input.titleAndUrl.title;
-			bookmarkToUpdate.url = input.titleAndUrl.url;
-
-			await database.write();
-			return database.data.bookmarks;
+				bookmarkToUpdate.title = input.titleAndUrl.title;
+				bookmarkToUpdate.url = input.titleAndUrl.url;
+			});
 		}),
+
 	visitBookmark: procedure
 		.input(type({
 			'...': tablesInputSchema,
 			id: idSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarkToUpdate = getBookmarkByIdFromDB(database, input.id);
+			entry.mutate(({ bookmarks }) => {
+				const bookmark = findBookmarkByID(bookmarks, input.id);
 
-			bookmarkToUpdate.visitCount = bookmarkToUpdate.visitCount + 1;
-
-			await database.write();
-			return database.data.bookmarks;
+				bookmark.visitCount++;
+			});
 		}),
+
 	tagBookmarks: procedure
 		.input(type({
 			'...': tablesInputSchema,
 			ids: idSchema.array(),
 			tag: tagSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarks = getBookmarksFromDB(database);
-
-			bookmarks
-				.filter(b => input.ids.includes(b.id))
-				.forEach(b => {
-					b.tags = uniq([...b.tags, input.tag]);
-				});
-
-			await database.write();
-			return database.data.bookmarks;
+			entry.mutate(({ bookmarks }) => {
+				bookmarks
+					.filter(({ id }) => input.ids.includes(id))
+					.forEach(b => {
+						b.tags = uniq([...b.tags, input.tag]);
+					});
+			});
 		}),
+
 	removeTagFromBookmark: procedure
 		.input(type({
 			'...': tablesInputSchema,
 			id: idSchema,
 			tag: tagSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarkToUpdate = getBookmarkByIdFromDB(database, input.id);
+			entry.mutate(({ bookmarks }) => {
+				const bookmark = findBookmarkByID(bookmarks, input.id);
 
-			bookmarkToUpdate.tags = remove(
-				bookmarkToUpdate.tags,
-				(tag: string) => tag !== input.tag,
-			);
-
-			await database.write();
-			return database.data.bookmarks;
+				bookmark.tags = bookmark.tags.filter(t => t !== input.tag);
+			});
 		}),
+
 	deleteBookmark: procedure
 		.input(type({
 			'...': tablesInputSchema,
 			id: idSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<Array<BookmarkFromDB>> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			const entry = getTable(input.table);
 
-			const bookmarks = getBookmarksFromDB(database);
-			const votes = getVotesFromDB(database);
-
-			remove(bookmarks, { id: input.id });
-			remove(votes, vote => vote.winner === input.id || vote.loser === input.id);
-
-			await database.write();
-			return database.data.bookmarks;
+			entry.mutate(data => {
+				data.bookmarks = data.bookmarks
+					.filter(({ id }) => id !== input.id);
+				data.votes = data.votes
+					.filter(({ loser, winner }) => winner !== input.id && loser !== input.id);
+			});
 		}),
 
 	createVote: procedure
@@ -171,30 +154,39 @@ const appRouter = router({
 			winningId: idSchema,
 			losingId: idSchema,
 		}).assert)
-		.mutation(async ({ input }): Promise<{ bookmarks: Array<BookmarkFromDB>, votes: Array<VersusVote> }> => {
-			const database = getDatabase(input.table);
+		.mutation(({ input }): void => {
+			getTable(input.table).mutate(({ bookmarks, votes }) => {
+				const winningBookmark = findBookmarkByID(bookmarks, input.winningId);
+				const losingBookmark = findBookmarkByID(bookmarks, input.losingId);
 
-			const winningBookmark = getBookmarkByIdFromDB(database, input.winningId);
-			const losingBookmark = getBookmarkByIdFromDB(database, input.losingId);
+				if (winningBookmark.position <= losingBookmark.position) {
+					winningBookmark.position = losingBookmark.position + 1;
+				}
 
-			if (winningBookmark.position <= losingBookmark.position) {
-				winningBookmark.position = losingBookmark.position + 1;
-			}
+				votes.push({
+					id: nanoid(),
+					winner: input.winningId,
+					loser: input.losingId,
+				});
+			});
+		}),
 
-			const votes = getVotesFromDB(database);
-			const newVote: VersusVote = {
-				id: nanoid(),
-				winner: input.winningId,
-				loser: input.losingId,
-			};
+	watchBookmarks: procedure
+		.input(tablesInputSchema.assert)
+		.subscription(({ input, signal }): AsyncIterableIterator<Array<BookmarkFromDB>> => {
+			const bookmarks$ = getTable(input.table).bookmarks$.pipe(
+				takeUntil(toAborted(signal)),
+			);
+			return toAsyncGenerator(bookmarks$);
+		}),
 
-			votes.push(newVote);
-
-			await database.write();
-			return {
-				bookmarks: database.data.bookmarks,
-				votes: database.data.votes,
-			};
+	watchVotes: procedure
+		.input(tablesInputSchema.assert)
+		.subscription(({ input, signal }): AsyncIterableIterator<Array<VersusVote>> => {
+			const votes$ = getTable(input.table).votes$.pipe(
+				takeUntil(toAborted(signal)),
+			);
+			return toAsyncGenerator(votes$);
 		}),
 });
 
@@ -207,4 +199,7 @@ createHTTPServer({
 	middleware: cors(),
 	router: appRouter,
 }).listen(3000);
-console.log('Server online!');
+
+const wss = new WebSocketServer({ port: 3001 });
+applyWSSHandler({ wss, router: appRouter });
+console.log('Server online! HTTP on :3000, WebSocket on :3001');

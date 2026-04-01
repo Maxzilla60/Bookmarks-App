@@ -1,8 +1,7 @@
-import type { Bookmark, BookmarkFromDB } from 'bookmarksapp-schemas/schemas';
+import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 import { TagIcon } from 'lucide-svelte';
-import type { Observable } from 'rxjs';
 import { client } from '../client';
-import { createBookmarkAction } from '../createAction';
+import { createAction } from '../createAction';
 import { fromCurrentTable } from '../data/currentTable$';
 
 type RemoveTagFromBookmarkAction = {
@@ -10,7 +9,7 @@ type RemoveTagFromBookmarkAction = {
 	bookmark: Bookmark
 };
 
-const { update, updates$ } = createBookmarkAction<RemoveTagFromBookmarkAction>(
+const update = createAction<RemoveTagFromBookmarkAction>(
 	({ bookmark, tagToRemove }) => fromCurrentTable(table =>
 		client.removeTagFromBookmark.mutate({
 			table,
@@ -24,8 +23,6 @@ const { update, updates$ } = createBookmarkAction<RemoveTagFromBookmarkAction>(
 		successIcon: TagIcon,
 	},
 );
-
-export const removeTagFromBookmark$: Observable<Array<BookmarkFromDB>> = updates$;
 
 export function removeTagFromBookmark(bookmark: Bookmark, tagToRemove: string) {
 	update({
