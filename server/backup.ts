@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 export function backupTables(): void {
 	fs.cp(
@@ -16,6 +16,6 @@ export function backupTables(): void {
 function dateName(): string {
 	return new Date()
 		.toLocaleString('en-GB')
-		.replace(/[\/:]/g, '-')
+		.replace(/[/:]/g, '-')
 		.replace(/, /g, '_');
 }
