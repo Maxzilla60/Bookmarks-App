@@ -28,8 +28,6 @@
 		"@types/lodash": "^4.17.17",
 		"@types/node": "^22.15.21",
 		"@types/randomcolor": "^0.5.9",
-		"concurrently": "^9.1.2",
-		"json-server": "0.17.4",
 		"svelte": "^5.33.2",
 		"svelte-check": "^4.2.1",
 		"tslib": "^2.8.1",
