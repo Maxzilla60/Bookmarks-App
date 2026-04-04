@@ -8,3 +8,6 @@ node_modules
 /server/database/tables/**
 !/server/database/tables/example.json
 /server/database/backups/**
+
+/playwright-report
+/test-results

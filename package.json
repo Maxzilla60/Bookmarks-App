@@ -11,9 +11,13 @@
 		"start": "npx concurrently -n \"server,client\" -c \"magenta,yellow\" \"npm run server\" \"npx wait-on http://localhost:3000 && npm run client\"",
 		"server": "npm run start --workspace=server",
 		"client": "npm run start --workspace=client",
-		"upgrade": "npx npm-check-updates -u & npm i"
+		"upgrade": "npx npm-check-updates -u & npm i",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:report": "playwright show-report"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.59.1",
 		"concurrently": "^9.1.2",
 		"wait-on": "^9.0.1"
 	}
