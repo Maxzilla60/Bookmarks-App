@@ -1,8 +1,8 @@
+import { allBookmarks$ } from '@api/data/allBookmarks$';
+import { currentTable$ } from '@api/data/currentTable$';
+import { randomChoice } from '@util/util';
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 import { map, type Observable, shareReplay, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
-import { allBookmarks$ } from '../../api/data/allBookmarks$';
-import { currentTable$ } from '../../api/data/currentTable$';
-import { randomChoice } from '../../util/util';
 
 export type VersusBattle = {
 	leftCorner?: Bookmark,

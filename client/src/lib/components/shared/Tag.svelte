@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { removeTagFromBookmark } from '@api/actions/removeTagFromBookmark';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { XIcon } from 'lucide-svelte';
 	import { map } from 'rxjs';
-	import { removeTagFromBookmark } from '../../api/actions/removeTagFromBookmark';
 	import { tagColors$ } from './tagColors';
 
 	type Props = {

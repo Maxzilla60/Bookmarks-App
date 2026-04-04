@@ -1,7 +1,7 @@
+import { client } from '@api/client';
+import { showError } from '@components/error/errors$';
 import { first, isNil } from 'lodash';
 import { BehaviorSubject, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
-import { showError } from '../../components/error/errors$';
-import { client } from '../client';
 
 const LC_KEY = 'currentTable';
 

@@ -1,5 +1,5 @@
+import { showError } from '@components/error/errors$';
 import { type Type, type } from 'arktype';
-import { showError } from '../components/error/errors$';
 
 export function validate(schema: Type<unknown, {}>, obj: any, title: string): boolean {
 	const result = schema(obj);

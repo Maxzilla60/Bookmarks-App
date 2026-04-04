@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { currentTable$, switchTable, tables } from '@api/data/currentTable$';
 	import { DatabaseIcon } from 'lucide-svelte';
-	import { currentTable$, switchTable, tables } from '../../../../api/data/currentTable$';
 </script>
 
 <DatabaseIcon color="var(--accent-color-500)"/>

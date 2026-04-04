@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
 	import { SearchIcon } from 'lucide-svelte';
-	import { allBookmarks$ } from '../../../../../api/data/allBookmarks$';
 	import { updateSearch } from './search';
 </script>
 

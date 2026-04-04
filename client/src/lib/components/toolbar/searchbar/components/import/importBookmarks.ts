@@ -1,8 +1,8 @@
+import { createBookmarks } from '@api/actions/createBookmarks';
+import { showError } from '@components/error/errors$';
+import { validate } from '@util/validate';
 import type { Bookmark, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
-import { createBookmarks } from '../../../../../api/actions/createBookmarks';
-import { validate } from '../../../../../util/validate';
-import { showError } from '../../../../error/errors$';
 
 export function importBookmarks(importText: string, allBookmarks: Array<Bookmark>): void {
 	if (!importText.length) {

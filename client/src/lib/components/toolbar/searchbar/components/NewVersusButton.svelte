@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
+	import { newVersusBattle } from '@components/versus/versusBattle$';
 	import { SwordsIcon } from 'lucide-svelte';
-	import { allBookmarks$ } from '../../../../api/data/allBookmarks$';
-	import { newVersusBattle } from '../../../versus/versusBattle$';
 </script>
 
 <button

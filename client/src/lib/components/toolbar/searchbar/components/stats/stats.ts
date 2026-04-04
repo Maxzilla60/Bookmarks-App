@@ -1,6 +1,6 @@
+import { allBookmarks$ } from '@api/data/allBookmarks$';
 import { uniq } from 'lodash';
 import { map, type Observable } from 'rxjs';
-import { allBookmarks$ } from '../../../../../api/data/allBookmarks$';
 
 interface BookmarkStats {
 	noTags: number;
