@@ -1,13 +1,13 @@
 <script lang="ts">
+	import { deleteBookmark } from '@api/actions/deleteBookmark';
+	import { visitBookmark } from '@api/actions/visitBookmark';
+	import { openBookmarkDetails } from '@components/details/state';
+	import { selectBookmark, selectedBookmarkIds$ } from '@components/list/selectedBookmark';
+	import Tag from '@components/shared/Tag.svelte';
+	import { getBookmarkVersusString } from '@util/util';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { ToiletIcon } from 'lucide-svelte';
 	import { writable } from 'svelte/store';
-	import { deleteBookmark } from '../../../api/actions/deleteBookmark';
-	import { visitBookmark } from '../../../api/actions/visitBookmark';
-	import { getBookmarkVersusString } from '../../../util/util';
-	import { openBookmarkDetails } from '../../details/state';
-	import Tag from '../../shared/Tag.svelte';
-	import { selectBookmark, selectedBookmarkIds$ } from '../selectedBookmark';
 
 	type Props = {
 		bookmark: Bookmark;

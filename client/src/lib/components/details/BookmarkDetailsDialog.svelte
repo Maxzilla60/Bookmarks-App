@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { editBookmark } from '@api/actions/editBookmark';
+	import PopUp from '@components/shared/popup/PopUp.svelte';
+	import Tag from '@components/shared/Tag.svelte';
+	import { calculateVersusScore, confirmButtonText } from '@util/util';
 	import { type } from 'arktype';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 	import { isNil } from 'lodash';
 	import { CheckIcon, PencilIcon } from 'lucide-svelte';
 	import { combineLatest, filter, first, map, merge, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
-	import { editBookmark } from '../../api/actions/editBookmark';
-	import { calculateVersusScore, confirmButtonText } from '../../util/util';
-	import PopUp from '../shared/popup/PopUp.svelte';
-	import Tag from '../shared/Tag.svelte';
 	import { bookmarkDetails$, openBookmarkDetails } from './state';
 
 	type BookmarkWithScore = Bookmark & { versusScore: number };

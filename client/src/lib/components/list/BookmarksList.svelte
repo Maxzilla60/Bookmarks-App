@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
+	import BookmarkDetailsDialog from '@components/details/BookmarkDetailsDialog.svelte';
+	import { searchTerm$ } from '@components/toolbar/searchbar/components/searchinput/search';
+	import { sortType$ } from '@components/toolbar/searchbar/components/sort/sorting';
+	import { fromCtrlShortcut, fuzzySearch, sortBy } from '@util/util';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { combineLatest, map, type Observable, startWith } from 'rxjs';
-	import { allBookmarks$ } from '../../api/data/allBookmarks$';
-	import { fromCtrlShortcut, fuzzySearch, sortBy } from '../../util/util';
-	import BookmarkDetailsDialog from '../details/BookmarkDetailsDialog.svelte';
-	import { searchTerm$ } from '../toolbar/searchbar/components/searchinput/search';
-	import { sortType$ } from '../toolbar/searchbar/components/sort/sorting';
 	import BookmarkEntry from './components/BookmarkEntry.svelte';
 
 	const sortedBookmarks$: Observable<Array<Bookmark>> = combineLatest({

@@ -1,6 +1,6 @@
+import { client } from '@api/client';
 import type { Category } from 'bookmarksapp-schemas/schemas';
 import { type Observable, shareReplay, switchMap } from 'rxjs';
-import { client } from '../client';
 import { currentTable$ } from './currentTable$';
 
 export const categories$: Observable<Array<Category>> = currentTable$.pipe(

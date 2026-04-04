@@ -1,5 +1,5 @@
+import { BookmarksSort } from '@util/sort.enum';
 import { BehaviorSubject, shareReplay } from 'rxjs';
-import { BookmarksSort } from '../../../../../util/sort.enum';
 
 const sortTypeSubject = new BehaviorSubject<BookmarksSort>(BookmarksSort.VERSUS_SCORE);
 export const sortType$ = sortTypeSubject.asObservable().pipe(

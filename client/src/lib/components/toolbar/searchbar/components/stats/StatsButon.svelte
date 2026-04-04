@@ -1,10 +1,10 @@
 <script lang="ts">
+	import PopUp from '@components/shared/popup/PopUp.svelte';
+	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
+	import Tag from '@components/shared/Tag.svelte';
+	import { confirmButtonText } from '@util/util';
 	import { ChartPieIcon, CheckIcon } from 'lucide-svelte';
 	import { filter, map } from 'rxjs';
-	import { confirmButtonText } from '../../../../../util/util';
-	import PopUp from '../../../../shared/popup/PopUp.svelte';
-	import { createOpenDialogSubject } from '../../../../shared/popup/popUpDialog';
-	import Tag from '../../../../shared/Tag.svelte';
 	import { stats$ } from './stats.js';
 
 	const statsDialogId = 'stats_dialog';

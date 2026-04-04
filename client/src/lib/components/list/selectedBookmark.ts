@@ -1,6 +1,6 @@
+import { currentTable$ } from '@api/data/currentTable$';
 import { uniq } from 'lodash';
 import { map, scan, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
-import { currentTable$ } from '../../api/data/currentTable$';
 
 type SelectBookmarks = {
 	bookmarkId: string;

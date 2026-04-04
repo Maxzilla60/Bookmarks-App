@@ -1,14 +1,14 @@
 <script lang="ts">
+	import { createVersusVote } from '@api/actions/createVersusVote';
+	import { deleteBookmark } from '@api/actions/deleteBookmark';
+	import { visitBookmark } from '@api/actions/visitBookmark';
+	import { openBookmarkDetails } from '@components/details/state';
+	import { selectBookmark } from '@components/list/selectedBookmark';
+	import Tag from '@components/shared/Tag.svelte';
+	import { newVersusBattle } from '@components/versus/versusBattle$';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { isNil } from 'lodash';
 	import { EyeIcon, LocateFixedIcon, StarIcon, ToiletIcon } from 'lucide-svelte';
-	import { createVersusVote } from '../../../api/actions/createVersusVote';
-	import { deleteBookmark } from '../../../api/actions/deleteBookmark';
-	import { visitBookmark } from '../../../api/actions/visitBookmark';
-	import { openBookmarkDetails } from '../../details/state';
-	import { selectBookmark } from '../../list/selectedBookmark';
-	import Tag from '../../shared/Tag.svelte';
-	import { newVersusBattle } from '../versusBattle$';
 
 	type Props = {
 		bookmark?: Bookmark;

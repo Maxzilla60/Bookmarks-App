@@ -1,7 +1,7 @@
+import { client } from '@api/client';
+import { createAction } from '@api/createAction';
+import { fromCurrentTable } from '@api/data/currentTable$';
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { client } from '../client';
-import { createAction } from '../createAction';
-import { fromCurrentTable } from '../data/currentTable$';
 
 const update = createAction<Bookmark>(
 	bookmark => fromCurrentTable(table =>

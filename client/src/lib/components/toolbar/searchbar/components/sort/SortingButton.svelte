@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { BookmarksSort } from '@util/sort.enum';
 	import { ArrowDownUpIcon, ArrowUpDownIcon } from 'lucide-svelte';
 	import { map } from 'rxjs';
-	import { BookmarksSort } from '../../../../../util/sort.enum';
 	import { sortType$, toggleSort } from './sorting';
 
 	const sortIsVersusScore$ = sortType$.pipe(

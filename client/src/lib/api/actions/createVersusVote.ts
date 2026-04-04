@@ -1,8 +1,8 @@
+import { client } from '@api/client';
+import { createAction } from '@api/createAction';
+import { fromCurrentTable } from '@api/data/currentTable$';
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 import { StarIcon } from 'lucide-svelte';
-import { client } from '../client';
-import { createAction } from '../createAction';
-import { fromCurrentTable } from '../data/currentTable$';
 
 type CreateVersusVoteAction = {
 	winningBookmark: Bookmark,

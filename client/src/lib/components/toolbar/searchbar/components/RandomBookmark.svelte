@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
+	import { selectBookmark } from '@components/list/selectedBookmark';
+	import { randomChoice } from '@util/util';
 	import { SparkleIcon } from 'lucide-svelte';
 	import { map, Subject, withLatestFrom } from 'rxjs';
-	import { allBookmarks$ } from '../../../../api/data/allBookmarks$';
-	import { randomChoice } from '../../../../util/util';
-	import { selectBookmark } from '../../../list/selectedBookmark';
 
 	const openRandomBookmarkSubject = new Subject<void>();
 	openRandomBookmarkSubject.pipe(

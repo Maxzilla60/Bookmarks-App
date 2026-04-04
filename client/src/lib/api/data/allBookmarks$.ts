@@ -1,10 +1,10 @@
+import { client } from '@api/client';
+import { fromSubscription } from '@api/fromSubscription';
+import { validate } from '@util/validate';
 import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
 import { bookmarkSchema } from 'bookmarksapp-schemas/schemas';
 import { chain, isEqual } from 'lodash';
 import { catchError, combineLatest, distinctUntilChanged, map, type Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
-import { validate } from '../../util/validate';
-import { client } from '../client';
-import { fromSubscription } from '../fromSubscription';
 import { currentTable$ } from './currentTable$';
 
 type BookmarksAndVotesFromDB = {

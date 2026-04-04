@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
+	import PopUp from '@components/shared/popup/PopUp.svelte';
+	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
+	import { fromCtrlShortcut } from '@util/util';
 	import { type } from 'arktype';
 	import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 	import { FileUpIcon, FileWarningIcon } from 'lucide-svelte';
 	import { BehaviorSubject, filter, identity, map, type Observable, Subject, withLatestFrom } from 'rxjs';
-	import { allBookmarks$ } from '../../../../../api/data/allBookmarks$';
-	import { fromCtrlShortcut } from '../../../../../util/util';
-	import PopUp from '../../../../shared/popup/PopUp.svelte';
-	import { createOpenDialogSubject } from '../../../../shared/popup/popUpDialog';
 	import { importBookmarks } from './importBookmarks';
 
 	const importDialogId = 'import_dialog';

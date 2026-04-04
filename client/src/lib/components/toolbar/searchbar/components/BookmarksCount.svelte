@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { allBookmarks$ } from '@api/data/allBookmarks$';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { BehaviorSubject, combineLatest, map, type Observable } from 'rxjs';
-	import { allBookmarks$ } from '../../../../api/data/allBookmarks$';
 
 	const isHoveringSubject = new BehaviorSubject<boolean>(false);
 

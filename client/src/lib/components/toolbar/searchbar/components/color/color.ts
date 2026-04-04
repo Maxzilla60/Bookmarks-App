@@ -1,6 +1,6 @@
+import { currentTable$ } from '@api/data/currentTable$';
 import { random } from 'lodash';
 import { BehaviorSubject, map, type Observable, scan, shareReplay, switchMap } from 'rxjs';
-import { currentTable$ } from '../../../../../api/data/currentTable$';
 import colorsJson from './colors.json';
 
 export type Color = {
