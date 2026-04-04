@@ -52,12 +52,7 @@ export const categorySchema = type({
 	'color?': 'string',
 });
 
-export const databaseSchema = type({
-	emoji: 'string', // TODO: should be single emoji (https://stackoverflow.com/a/59050877/10748420)
-	bookmarks: bookmarkFromDBSchema.array(),
-	votes: versusVoteSchema.array(),
-	categories: categorySchema.array(),
-});
+export type BookmarkTable = { name: string, emoji: string };
 
 export type BookmarkFromDB = typeof bookmarkFromDBSchema.infer;
 export type Bookmark = typeof bookmarkSchema.infer;

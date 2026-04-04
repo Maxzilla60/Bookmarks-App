@@ -1,11 +1,12 @@
 import { client } from '@api/client';
 import { showError } from '@components/error/errors$';
+import type { BookmarkTable } from 'bookmarksapp-schemas/schemas';
 import { first, isNil } from 'lodash';
 import { BehaviorSubject, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
 
 const LC_KEY = 'currentTable';
 
-export const tables: Array<{ name: string, emoji: string }> = await client.getTables.query();
+export const tables: Array<BookmarkTable> = await client.getTables.query();
 const tableNames = tables.map(({ name }) => name);
 const tablesSubject = new BehaviorSubject<string>(getInitialCurrentTable());
 
