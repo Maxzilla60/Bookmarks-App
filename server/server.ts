@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { type } from 'arktype';
-import { type BookmarkFromDB, type Category, idSchema, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
+import { type BookmarkFromDB, type BookmarkTable, type Category, idSchema, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
 import cors from 'cors';
 import { entries, keys, uniq } from 'lodash-es';
 import { nanoid } from 'nanoid';
@@ -40,7 +40,7 @@ const appRouter = router({
 		.input(tablesInputSchema.assert)
 		.query(({ input }): Array<Category> => getTable(input.table).categories),
 
-	getTables: procedure.query((): Array<{ name: string, emoji: string }> =>
+	getTables: procedure.query((): Array<BookmarkTable> =>
 		entries(databases).map(([name, { emoji }]) => ({ name, emoji })),
 	),
 
