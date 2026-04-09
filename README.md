@@ -28,6 +28,7 @@ A personal project to tinker with and use in my free time.
 - Folder: `/client`
 - Framework: [Svelte](https://svelte.dev)
 - Wilson score sorting: [decay](https://github.com/clux/decay)
+- Fuzzy search: [Fuse.js](https://fusejs.io)
 - State management: [RxJS](https://rxjs.dev)
 - Utility: [lodash](https://lodash.com)
 - Icons: [Lucide](https://lucide.netlify.app)

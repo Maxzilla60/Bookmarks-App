@@ -1,6 +1,6 @@
 import type { Bookmark, VersusStats } from 'bookmarksapp-schemas/schemas';
 import { wilsonScore } from 'decay';
-import fuzzysort from 'fuzzysort';
+import Fuse from 'fuse.js';
 import { sample } from 'lodash';
 import { filter, fromEvent, type Observable } from 'rxjs';
 import { BookmarksSort } from './sort.enum';
@@ -50,11 +50,12 @@ export function fuzzySearch(bookmarks: Array<Bookmark>, searchTerm: string): Arr
 			...b,
 			tagsString: b.tags.join(' '),
 		}));
-		return fuzzysort.go(
-			searchTerm,
+		return new Fuse(
 			searchableBookmarks,
 			{ keys: ['tagsString', 'title', 'url'] },
-		).map(result => result.obj);
+		)
+			.search(searchTerm)
+			.map(({ item }) => item);
 	}
 	return bookmarks;
 }
