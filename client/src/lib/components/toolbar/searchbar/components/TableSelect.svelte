@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { currentTable$, switchTable, tables } from '@api/data/currentTable$';
+	import { currentTable$, switchTable, tables$ } from '@api/data/currentTable$';
 	import { DatabaseIcon } from 'lucide-svelte';
 </script>
 
@@ -8,7 +8,7 @@
 	value={$currentTable$}
 	onchange={e => switchTable(e.target.value)}
 >
-	{#each tables as { name, emoji }}
+	{#each $tables$ as { name, emoji }}
 		<option
 			value={name}
 		>

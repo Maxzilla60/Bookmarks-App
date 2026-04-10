@@ -69,9 +69,9 @@ Currently the only way to add bookmarks is to import via some JSON in the follow
 
 ### 📁 Adding tables
 
-Create a new JSON file in `/server/database/tables` and restart the server. See `/server/database/tables/example.json` for an example. The application uses the name of the file as the title of the table.
+The server watches the `/server/database/tables` directory for changes, so you can add and removes tables on the fly without restarting the server.
 
-Make sure to **restart the server** after adding a new table.
+See `/server/database/tables/example.json` for an example. The application uses the name of the file as the title of the table.
 
 Here's a minimal example:
 

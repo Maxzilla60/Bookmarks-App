@@ -1,5 +1,5 @@
 import type { BookmarkFromDB, Category, VersusVote } from 'bookmarksapp-schemas/schemas';
-import { endsWith, fromPairs, isEmpty, replace } from 'lodash-es';
+import { chain, endsWith, fromPairs, isEmpty, replace } from 'lodash-es';
 import { LowSync } from 'lowdb';
 import { JSONFileSync } from 'lowdb/node';
 import fs from 'node:fs';
@@ -33,9 +33,16 @@ export type TableEntry = {
 	mutate: (fn: (data: MutableData) => void) => void;
 };
 
-export const tables: Record<string, TableEntry> = initTables();
+const tablesSubject = new BehaviorSubject<Record<string, TableEntry>>(getInitialTables());
+watchTables();
 
-function initTables(): Record<string, TableEntry> {
+export const tables$: Observable<Record<string, TableEntry>> = tablesSubject.asObservable();
+
+export function getTables(): Record<string, TableEntry> {
+	return tablesSubject.value;
+}
+
+function getInitialTables(): Record<string, TableEntry> {
 	const tables: Array<[string, TableEntry]> = [];
 
 	for (const fileName of fs.readdirSync(tablesPath)) {
@@ -50,6 +57,22 @@ function initTables(): Record<string, TableEntry> {
 	}
 
 	return fromPairs(tables);
+}
+
+function watchTables(): void {
+	fs.watch(tablesPath, (eventType, filename) => {
+		if (eventType !== 'rename' || !filename || !endsWith(filename, '.json')) {
+			return;
+		}
+
+		const tables: Record<string, TableEntry> = chain(fs.readdirSync(tablesPath))
+			.filter(f => endsWith(f, '.json'))
+			.map(f => replace(f, '.json', ''))
+			.map(tableName => [tableName, openTableEntry(tableName)])
+			.fromPairs()
+			.value();
+		tablesSubject.next(tables);
+	});
 }
 
 function openTableEntry(tableName: string): TableEntry {

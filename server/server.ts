@@ -7,10 +7,10 @@ import cors from 'cors';
 import { entries, keys, uniq } from 'lodash-es';
 import { nanoid } from 'nanoid';
 import { otag as toAsyncGenerator } from 'observable-to-async-generator';
-import { fromEvent, NEVER, Observable, takeUntil } from 'rxjs';
+import { fromEvent, map, NEVER, Observable, takeUntil } from 'rxjs';
 import { WebSocketServer } from 'ws';
 import { backupTables } from './backup';
-import { type TableEntry, tables } from './database/tables';
+import { getTables, type TableEntry, tables$ } from './database/tables';
 
 function toAborted(signal: AbortSignal | undefined): Observable<Event> {
 	if (!signal) {
@@ -24,11 +24,21 @@ export const router = t.router;
 export const procedure = t.procedure;
 
 const tablesInputSchema = type({
-	table: type.enumerated(...keys(tables)),
+	table: type.string.narrow((s, ctx) => {
+		if (keys(getTables()).includes(s)) {
+			return true;
+		}
+		ctx.error(`Expected one of: ${keys(getTables()).join(', ')}`);
+		return false;
+	}),
 });
 
 function getTable(table: string): TableEntry {
-	return tables[table]!;
+	const entry = getTables()[table];
+	if (!entry) {
+		throw new Error(`Unknown table: '${table}'`);
+	}
+	return entry;
 }
 
 function findBookmarkByID(bookmarks: Array<BookmarkFromDB>, id: string): BookmarkFromDB {
@@ -40,9 +50,13 @@ const appRouter = router({
 		.input(tablesInputSchema.assert)
 		.query(({ input }): Array<Category> => getTable(input.table).categories),
 
-	getTables: procedure.query((): Array<BookmarkTable> =>
-		entries(tables).map(([name, { emoji }]) => ({ name, emoji })),
-	),
+	watchTables: procedure.subscription(({ signal }): AsyncIterableIterator<Array<BookmarkTable>> => {
+		const mappedTables$ = tables$.pipe(
+			map(dbs => entries(dbs).map(([name, { emoji }]) => ({ name, emoji }))),
+			takeUntil(toAborted(signal)),
+		);
+		return toAsyncGenerator(mappedTables$);
+	}),
 
 	createBookmarks: procedure
 		.input(type({
