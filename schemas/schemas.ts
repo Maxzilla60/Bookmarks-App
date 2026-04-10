@@ -11,7 +11,7 @@ export const idSchema = type('string > 0').narrow((id, ctx) => {
 
 export const tagSchema = type('/^\\w+$/ > 0').pipe(tag => tag.toLowerCase());
 
-const tagsSchema = tagSchema.array().narrow((tags, ctx) => {
+export const tagsSchema = tagSchema.array().narrow((tags, ctx) => {
 	if (uniq(tags).length === tags.length) {
 		return true;
 	}
@@ -40,6 +40,11 @@ export const titleAndUrlSchema = type({
 	url: bookmarkSchema.get('url'),
 });
 
+export const bookmarkInputSchema = type({
+	'...': titleAndUrlSchema,
+	'tags?': tagsSchema,
+});
+
 export const versusVoteSchema = type({
 	id: idSchema,
 	winner: idSchema,
@@ -59,5 +64,6 @@ export type BookmarkFromDB = typeof bookmarkFromDBSchema.infer;
 export type Bookmark = typeof bookmarkSchema.infer;
 export type VersusStats = typeof versusStatsSchema.infer;
 export type TitleAndUrl = typeof titleAndUrlSchema.infer;
+export type BookmarkInput = typeof bookmarkInputSchema.infer;
 export type VersusVote = typeof versusVoteSchema.infer;
 export type Category = typeof categorySchema.infer;
