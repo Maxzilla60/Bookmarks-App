@@ -2,11 +2,11 @@ import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
 import { validate } from '@util/validate';
-import type { TitleAndUrl } from 'bookmarksapp-schemas/schemas';
-import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import type { BookmarkInput } from 'bookmarksapp-schemas/schemas';
+import { bookmarkInputSchema } from 'bookmarksapp-schemas/schemas';
 import { BookmarkCheckIcon } from 'lucide-svelte';
 
-const update = createAction<Array<TitleAndUrl>>(
+const update = createAction<Array<BookmarkInput>>(
 	newBookmarks => fromCurrentTable(table =>
 		client.createBookmarks.mutate({
 			table,
@@ -32,12 +32,11 @@ const update = createAction<Array<TitleAndUrl>>(
 		successIcon: BookmarkCheckIcon,
 	});
 
-export function createBookmarks(titleAndUrls: Array<TitleAndUrl>): void {
-	const success = validate(titleAndUrlSchema.array(), titleAndUrls, 'createBookmarks');
+export function createBookmarks(bookmarks: Array<BookmarkInput>): void {
+	const success = validate(bookmarkInputSchema.array(), bookmarks, 'createBookmarks');
 	if (!success) {
 		return;
 	}
 
-	update(titleAndUrls);
+	update(bookmarks);
 }
-

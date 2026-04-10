@@ -1,4 +1,5 @@
 <script lang="ts">
+	import AddBookmarkButton from './components/add/AddBookmarkButton.svelte';
 	import BookmarksCount from './components/BookmarksCount.svelte';
 	import ColorPicker from './components/color/ColorPicker.svelte';
 	import ImportButton from './components/import/ImportButton.svelte';
@@ -25,6 +26,7 @@
 	<SortingButton/>
 	<span class="top-bar-divider"></span>
 
+	<AddBookmarkButton/>
 	<ImportButton/>
 	<StatsButton/>
 	<span class="top-bar-divider"></span>

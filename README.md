@@ -52,7 +52,13 @@ Uses [concurrently](https://github.com/open-cli-tools/concurrently) to run both 
 
 ### 📄 Adding bookmarks
 
-Currently the only way to add bookmarks is to import via some JSON in the following format:
+#### ➕ Add Bookmark form
+
+Click the **Add Bookmark** button in the toolbar (or press `Ctrl+B`)
+
+#### 📥 Bulk import
+
+Click the **Import** button (or press `Ctrl+I`) to paste a JSON array and import multiple bookmarks at once. The expected format is:
 
 ```json
 [
