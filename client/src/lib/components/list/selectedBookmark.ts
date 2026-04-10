@@ -1,6 +1,6 @@
 import { currentTable$ } from '@api/data/currentTable$';
-import { uniq } from 'lodash';
-import { map, scan, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
+import { isNil, uniq } from 'lodash';
+import { map, of, scan, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
 
 type SelectBookmarks = {
 	bookmarkId: string;
@@ -11,23 +11,29 @@ type SelectBookmarks = {
 const LC_KEY = 'selectedBookmarkIds';
 
 const selectedBookmarkIdsSubject = new Subject<SelectBookmarks>();
-export const selectedBookmarkIds$ = currentTable$.pipe(switchMap(table =>
-	selectedBookmarkIdsSubject.asObservable().pipe(
-		scan((acc, { append, bookmarkId, deselect }) => {
-			if (deselect) {
-				return acc.filter(id => bookmarkId !== id);
-			}
-			if (append) {
-				return [...acc, bookmarkId];
-			}
-			return [bookmarkId];
-		}, getSelectedBookmarkIdsFromLocalStorage(table)),
-		map(uniq),
-		tap(ids => localStorage.setItem(getKey(table), JSON.stringify(ids))),
-		startWith(getSelectedBookmarkIdsFromLocalStorage(table)),
-		shareReplay({ bufferSize: 1, refCount: true }),
-	),
-));
+export const selectedBookmarkIds$ = currentTable$.pipe(
+	switchMap(table => {
+		if (isNil(table)) {
+			return of([]);
+		}
+
+		return selectedBookmarkIdsSubject.asObservable().pipe(
+			scan((acc, { append, bookmarkId, deselect }) => {
+				if (deselect) {
+					return acc.filter(id => bookmarkId !== id);
+				}
+				if (append) {
+					return [...acc, bookmarkId];
+				}
+				return [bookmarkId];
+			}, getSelectedBookmarkIdsFromLocalStorage(table)),
+			map(uniq),
+			tap(ids => localStorage.setItem(getKey(table), JSON.stringify(ids))),
+			startWith(getSelectedBookmarkIdsFromLocalStorage(table)),
+			shareReplay({ bufferSize: 1, refCount: true }),
+		);
+	}),
+);
 
 export function selectBookmark(bookmarkId: string, append = false, deselect = false): void {
 	selectedBookmarkIdsSubject.next({
