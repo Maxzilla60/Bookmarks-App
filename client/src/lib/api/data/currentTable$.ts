@@ -1,15 +1,30 @@
 import { client } from '@api/client';
 import { fromSubscription } from '@api/fromSubscription';
 import { showError } from '@components/error/errors$';
-import type { BookmarkTable } from 'bookmarksapp-schemas/schemas';
+import type { BookmarkTable, TablesUpdate } from 'bookmarksapp-schemas/schemas';
 import { first, isNil } from 'lodash';
-import { BehaviorSubject, filter, firstValueFrom, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, map, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
+import { toast } from 'svelte-sonner';
 
 const LC_KEY = 'currentTable';
 
-export const tables$: Observable<Array<BookmarkTable>> = fromSubscription<Array<BookmarkTable>>(
+const tablesUpdates$ = fromSubscription<TablesUpdate>(
 	callbacks => client.watchTables.subscribe(undefined, callbacks),
-).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+).pipe(
+	tap(({ removed, added }) => {
+		for (const { name, emoji } of removed) {
+			toast.info(`${emoji} Table "${name}" removed!`);
+		}
+		for (const { name, emoji } of added) {
+			toast.info(`${emoji} Table "${name}" added!`);
+		}
+	}),
+	shareReplay({ bufferSize: 1, refCount: false }),
+);
+
+export const tables$: Observable<Array<BookmarkTable>> = tablesUpdates$.pipe(
+	map(({ tables }) => tables),
+);
 
 const initialTables = await firstValueFrom(tables$);
 const tablesSubject = new BehaviorSubject<string>(getInitialCurrentTable(initialTables));

@@ -1,5 +1,5 @@
 import type { Page, WebSocketRoute } from '@playwright/test';
-import type { BookmarkFromDB, BookmarkTable, VersusVote } from 'bookmarksapp-schemas/schemas';
+import type { BookmarkFromDB, BookmarkTable, TablesUpdate, VersusVote } from 'bookmarksapp-schemas/schemas';
 
 export type MockApiOptions = {
 	tables?: Array<BookmarkTable>;
@@ -48,7 +48,8 @@ class MockWsConnection {
 
 					// Immediately deliver the current snapshot for this subscription
 					if (path === 'watchTables') {
-						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.tables } }));
+						const update: TablesUpdate = { tables: this.tables, added: [], removed: [] };
+						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: update } }));
 					} else if (path === 'watchBookmarks') {
 						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.bookmarks } }));
 					} else if (path === 'watchVotes') {
@@ -62,10 +63,18 @@ class MockWsConnection {
 	}
 
 	pushTables(tables: Array<BookmarkTable>): void {
+		const prevTables = this.tables;
 		this.tables = tables;
+		const prevNames = new Set(prevTables.map(t => t.name));
+		const currNames = new Set(tables.map(t => t.name));
+		const update: TablesUpdate = {
+			tables,
+			added: tables.filter(t => !prevNames.has(t.name)),
+			removed: prevTables.filter(t => !currNames.has(t.name)),
+		};
 		for (const [id, path] of this.subscriptions) {
 			if (path === 'watchTables') {
-				this.ws.send(JSON.stringify({ id, result: { type: 'data', data: tables } }));
+				this.ws.send(JSON.stringify({ id, result: { type: 'data', data: update } }));
 			}
 		}
 	}

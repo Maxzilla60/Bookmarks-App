@@ -53,6 +53,7 @@ export const categorySchema = type({
 });
 
 export type BookmarkTable = { name: string, emoji: string };
+export type TablesUpdate = { tables: BookmarkTable[]; added: BookmarkTable[]; removed: BookmarkTable[] };
 
 export type BookmarkFromDB = typeof bookmarkFromDBSchema.infer;
 export type Bookmark = typeof bookmarkSchema.infer;
