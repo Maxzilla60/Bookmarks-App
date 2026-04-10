@@ -33,9 +33,9 @@ export type TableEntry = {
 	mutate: (fn: (data: MutableData) => void) => void;
 };
 
-export const databases: Record<string, TableEntry> = initDatabases();
+export const tables: Record<string, TableEntry> = initTables();
 
-function initDatabases(): Record<string, TableEntry> {
+function initTables(): Record<string, TableEntry> {
 	const tables: Array<[string, TableEntry]> = [];
 
 	for (const fileName of fs.readdirSync(tablesPath)) {

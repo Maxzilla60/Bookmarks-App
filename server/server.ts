@@ -10,7 +10,7 @@ import { otag as toAsyncGenerator } from 'observable-to-async-generator';
 import { fromEvent, NEVER, Observable, takeUntil } from 'rxjs';
 import { WebSocketServer } from 'ws';
 import { backupTables } from './backup';
-import { databases, type TableEntry } from './database/databases';
+import { type TableEntry, tables } from './database/tables';
 
 function toAborted(signal: AbortSignal | undefined): Observable<Event> {
 	if (!signal) {
@@ -24,11 +24,11 @@ export const router = t.router;
 export const procedure = t.procedure;
 
 const tablesInputSchema = type({
-	table: type.enumerated(...keys(databases)),
+	table: type.enumerated(...keys(tables)),
 });
 
 function getTable(table: string): TableEntry {
-	return databases[table]!;
+	return tables[table]!;
 }
 
 function findBookmarkByID(bookmarks: BookmarkFromDB[], id: string): BookmarkFromDB {
@@ -41,7 +41,7 @@ const appRouter = router({
 		.query(({ input }): Array<Category> => getTable(input.table).categories),
 
 	getTables: procedure.query((): Array<BookmarkTable> =>
-		entries(databases).map(([name, { emoji }]) => ({ name, emoji })),
+		entries(tables).map(([name, { emoji }]) => ({ name, emoji })),
 	),
 
 	createBookmarks: procedure
