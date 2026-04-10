@@ -9,9 +9,9 @@ const tablesPath = 'database/tables';
 
 type TableData = {
 	emoji: string;
-	bookmarks: BookmarkFromDB[];
-	votes: VersusVote[];
-	categories: Category[];
+	bookmarks: Array<BookmarkFromDB>;
+	votes: Array<VersusVote>;
+	categories: Array<Category>;
 };
 
 /** The two arrays that mutations are allowed to modify. */
@@ -21,11 +21,11 @@ export type TableEntry = {
 	/** Display emoji loaded from JSON. */
 	emoji: string;
 	/** Read-only categories loaded from JSON. */
-	categories: Category[];
+	categories: Array<Category>;
 	/** Live Observable of all bookmarks — replays the current value on subscription. */
-	bookmarks$: Observable<BookmarkFromDB[]>;
+	bookmarks$: Observable<Array<BookmarkFromDB>>;
 	/** Live Observable of all votes — replays the current value on subscription. */
-	votes$: Observable<VersusVote[]>;
+	votes$: Observable<Array<VersusVote>>;
 	/**
 	 * Apply a synchronous mutation to bookmarks/votes, write the JSON file,
 	 * then broadcast the updated arrays to any active subscribers.
@@ -61,8 +61,8 @@ function openTableEntry(tableName: string): TableEntry {
 	});
 	db.read();
 
-	const bookmarksSubject = new BehaviorSubject<BookmarkFromDB[]>(db.data.bookmarks);
-	const votesSubject = new BehaviorSubject<VersusVote[]>(db.data.votes);
+	const bookmarksSubject = new BehaviorSubject<Array<BookmarkFromDB>>(db.data.bookmarks);
+	const votesSubject = new BehaviorSubject<Array<VersusVote>>(db.data.votes);
 
 	const mutate = (fn: (data: MutableData) => void): void => {
 		fn(db.data);

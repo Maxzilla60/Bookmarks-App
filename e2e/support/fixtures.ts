@@ -1,6 +1,6 @@
 import type { BookmarkFromDB, BookmarkTable } from 'bookmarksapp-schemas/schemas';
 
-export const TABLES: BookmarkTable[] = [
+export const TABLES: Array<BookmarkTable> = [
 	{ name: 'spellbooks', emoji: '📖' },
 	{ name: 'quests', emoji: '⚔️' },
 ];
@@ -40,4 +40,4 @@ export const BOOKMARKS = {
 	} satisfies BookmarkFromDB,
 };
 
-export const DEFAULT_BOOKMARKS: BookmarkFromDB[] = Object.values(BOOKMARKS);
+export const DEFAULT_BOOKMARKS: Array<BookmarkFromDB> = Object.values(BOOKMARKS);

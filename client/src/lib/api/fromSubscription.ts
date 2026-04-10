@@ -14,7 +14,7 @@ type SubscriptionHandlers<T> = {
  * the server's generator cleanly via its tRPC `signal`.
  *
  * @example
- * fromSubscription<BookmarkFromDB[]>(callbacks =>
+ * fromSubscription<Array<BookmarkFromDB>>(callbacks =>
  *   client.watchBookmarks.subscribe({ table }, callbacks)
  * )
  */

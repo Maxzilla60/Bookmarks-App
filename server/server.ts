@@ -31,7 +31,7 @@ function getTable(table: string): TableEntry {
 	return tables[table]!;
 }
 
-function findBookmarkByID(bookmarks: BookmarkFromDB[], id: string): BookmarkFromDB {
+function findBookmarkByID(bookmarks: Array<BookmarkFromDB>, id: string): BookmarkFromDB {
 	return bookmarks.find(b => b.id === id)!;
 }
 
@@ -57,7 +57,7 @@ const appRouter = router({
 					id: nanoid(),
 					title,
 					url,
-					tags: [] as string[],
+					tags: [] as Array<string>,
 					visitCount: 0,
 					position: 0,
 				}));

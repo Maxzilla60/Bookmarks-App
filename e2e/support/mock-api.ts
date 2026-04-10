@@ -2,9 +2,9 @@ import type { Page, WebSocketRoute } from '@playwright/test';
 import type { BookmarkFromDB, BookmarkTable, VersusVote } from 'bookmarksapp-schemas/schemas';
 
 export type MockApiOptions = {
-	tables?: BookmarkTable[];
-	bookmarks?: BookmarkFromDB[];
-	votes?: VersusVote[];
+	tables?: Array<BookmarkTable>;
+	bookmarks?: Array<BookmarkFromDB>;
+	votes?: Array<VersusVote>;
 };
 
 type TRPCWsMsg = {
@@ -16,7 +16,7 @@ type TRPCWsMsg = {
 // ─── tRPC response helpers ───────────────────────────────────────────────────
 
 /** Wraps an array of results in the tRPC HTTP batch response envelope. */
-function trpcBatchResponse(results: unknown[]): string {
+function trpcBatchResponse(results: Array<unknown>): string {
 	return JSON.stringify(results.map(data => ({ result: { data } })));
 }
 
@@ -27,8 +27,8 @@ class MockWsConnection {
 
 	constructor(
 		private readonly ws: WebSocketRoute,
-		private bookmarks: BookmarkFromDB[],
-		private votes: VersusVote[],
+		private bookmarks: Array<BookmarkFromDB>,
+		private votes: Array<VersusVote>,
 	) {
 		ws.onMessage(raw => {
 			const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw as unknown as ArrayBuffer);
@@ -37,7 +37,7 @@ class MockWsConnection {
 			let parsed: unknown;
 			try { parsed = JSON.parse(text); } catch { return; }
 
-			const messages: TRPCWsMsg[] = Array.isArray(parsed) ? parsed : [parsed as TRPCWsMsg];
+			const messages: Array<TRPCWsMsg> = Array.isArray(parsed) ? parsed : [parsed as TRPCWsMsg];
 
 			for (const msg of messages) {
 				if (msg.method === 'subscription') {
@@ -58,7 +58,7 @@ class MockWsConnection {
 		});
 	}
 
-	pushBookmarks(bookmarks: BookmarkFromDB[]): void {
+	pushBookmarks(bookmarks: Array<BookmarkFromDB>): void {
 		this.bookmarks = bookmarks;
 		for (const [id, path] of this.subscriptions) {
 			if (path === 'watchBookmarks') {
@@ -67,7 +67,7 @@ class MockWsConnection {
 		}
 	}
 
-	pushVotes(votes: VersusVote[]): void {
+	pushVotes(votes: Array<VersusVote>): void {
 		this.votes = votes;
 		for (const [id, path] of this.subscriptions) {
 			if (path === 'watchVotes') {
@@ -87,11 +87,11 @@ class MockWsConnection {
  * Must be set up before `page.goto()`.
  */
 export class MockApi {
-	private connections: MockWsConnection[] = [];
+	private connections: Array<MockWsConnection> = [];
 
 	constructor(
-		private bookmarks: BookmarkFromDB[],
-		private votes: VersusVote[],
+		private bookmarks: Array<BookmarkFromDB>,
+		private votes: Array<VersusVote>,
 	) {}
 
 	handleWsConnection(ws: WebSocketRoute): void {
@@ -101,13 +101,13 @@ export class MockApi {
 	}
 
 	/** Push an updated bookmark list to all active WebSocket subscriptions. */
-	pushBookmarks(bookmarks: BookmarkFromDB[]): void {
+	pushBookmarks(bookmarks: Array<BookmarkFromDB>): void {
 		this.bookmarks = bookmarks;
 		for (const conn of this.connections) conn.pushBookmarks(bookmarks);
 	}
 
 	/** Push updated votes to all active WebSocket subscriptions. */
-	pushVotes(votes: VersusVote[]): void {
+	pushVotes(votes: Array<VersusVote>): void {
 		this.votes = votes;
 		for (const conn of this.connections) conn.pushVotes(votes);
 	}
