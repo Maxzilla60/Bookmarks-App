@@ -6,7 +6,7 @@
 	import { type } from 'arktype';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
-	import { isNil } from 'lodash';
+	import { isNil, sortBy } from 'lodash';
 	import { CheckIcon, PencilIcon } from 'lucide-svelte';
 	import { combineLatest, filter, first, map, merge, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 	import { bookmarkDetails$, openBookmarkDetails } from './state';
@@ -120,7 +120,7 @@
 
 				<dt>tags</dt>
 				<dd>
-					{#each $bookmark$.tags.sort() as tag ($bookmark$.id + '_' + tag)}
+					{#each sortBy($bookmark$.tags) as tag ($bookmark$.id + '_' + tag)}
 						<Tag {tag}/>
 					{/each}
 				</dd>

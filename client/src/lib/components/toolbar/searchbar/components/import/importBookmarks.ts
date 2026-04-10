@@ -3,6 +3,7 @@ import { showError } from '@components/error/errors$';
 import { validate } from '@util/validate';
 import type { Bookmark, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import { differenceBy, intersectionBy } from 'lodash';
 
 export function importBookmarks(importText: string, allBookmarks: Array<Bookmark>): void {
 	if (!importText.length) {
@@ -25,8 +26,7 @@ export function importBookmarks(importText: string, allBookmarks: Array<Bookmark
 	}
 
 	// Check for dupes
-	const bookmarkUrls = allBookmarks.map(b => b.url);
-	const existingBookmarks = titleAndUrls.filter(t => bookmarkUrls.includes(t.url));
+	const existingBookmarks = intersectionBy(titleAndUrls, allBookmarks, 'url');
 	if (existingBookmarks.length) {
 		showError(
 			`There are ${existingBookmarks.length} bookmark(s) that already exist and will not be imported:\n
@@ -35,7 +35,7 @@ export function importBookmarks(importText: string, allBookmarks: Array<Bookmark
 	}
 
 	// Import
-	const bookmarksToCreate = titleAndUrls.filter(t => !existingBookmarks.includes(t));
+	const bookmarksToCreate = differenceBy(titleAndUrls, allBookmarks, 'url');
 	createBookmarks(bookmarksToCreate);
 
 	// Scroll to bottom

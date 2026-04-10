@@ -1,5 +1,5 @@
 import { allBookmarks$ } from '@api/data/allBookmarks$';
-import { uniq } from 'lodash';
+import { chain, countBy } from 'lodash';
 import { map, type Observable } from 'rxjs';
 
 interface BookmarkStats {
@@ -18,29 +18,21 @@ interface BookmarkStats {
 
 export const stats$: Observable<BookmarkStats> = allBookmarks$.pipe(
 	map(bookmarks => ({
-		bookmarks,
-		tags: uniq(bookmarks.flatMap(b => b.tags)) as Array<string>,
-	})),
-	map(({ bookmarks, tags }) => ({
 		noTags: bookmarks.filter(b => b.tags?.length <= 0).length ?? 0,
 		notVisited: bookmarks.filter(b => b.visitCount <= 0).length ?? 0,
 		noVersus: bookmarks.filter(b => b.versus.voted <= 0).length ?? 0,
 		deleted: bookmarks.filter(b => b.tags.includes('deleted')).length ?? 0,
 		findSource: bookmarks.filter(b => b.tags.includes('findsource')).length ?? 0,
 		duplicates: bookmarks.filter(b => b.tags.includes('duplicate')).length ?? 0,
-		comparedStats: Object.entries(bookmarks
-			.reduce((reducer, currentValue) => {
-					const comparedAmount = `${currentValue.versus.compared}`;
-					reducer[comparedAmount] ??= 0;
-					reducer[comparedAmount] += 1;
-					return reducer;
-				}, {} as Record<string, number>,
-			)) as unknown as Record<string, number>,
-		tagStats: tags
+		comparedStats: countBy(bookmarks, b => b.versus.compared),
+		tagStats: chain(bookmarks)
+			.flatMap('tags')
+			.uniq()
 			.map(tag => ({
 				tag,
 				count: bookmarks.filter(b => b.tags.includes(tag)).length,
 			}))
-			.sort((a, b) => b.count - a.count),
+			.orderBy('count', 'desc')
+			.value(),
 	})),
 );

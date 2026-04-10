@@ -6,6 +6,7 @@
 	import Tag from '@components/shared/Tag.svelte';
 	import { getBookmarkVersusString } from '@util/util';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
+	import { sortBy } from 'lodash';
 	import { ToiletIcon } from 'lucide-svelte';
 	import { writable } from 'svelte/store';
 
@@ -74,7 +75,7 @@
 	</a>
 	<span class="list_bookmark_divider"></span>
 	<span class="list_bookmark_tags" title={bookmark.tags.join(', ')}>
-		{#each bookmark.tags.sort() as tag (bookmark.id + '_' + tag)}
+		{#each sortBy(bookmark.tags) as tag (bookmark.id + '_' + tag)}
 			<Tag {tag} {bookmark}/>
 		{/each}
 	</span>
