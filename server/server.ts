@@ -2,12 +2,12 @@ import { initTRPC } from '@trpc/server';
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { type } from 'arktype';
-import { type BookmarkFromDB, type BookmarkTable, type Category, idSchema, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
+import { type BookmarkFromDB, type BookmarkTable, type Category, idSchema, type TablesUpdate, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
 import cors from 'cors';
 import { entries, keys, uniq } from 'lodash-es';
 import { nanoid } from 'nanoid';
 import { otag as toAsyncGenerator } from 'observable-to-async-generator';
-import { fromEvent, map, NEVER, Observable, takeUntil } from 'rxjs';
+import { fromEvent, map, NEVER, Observable, pairwise, startWith, takeUntil } from 'rxjs';
 import { WebSocketServer } from 'ws';
 import { backupTables } from './backup';
 import { getTables, type TableEntry, tables$ } from './database/tables';
@@ -50,12 +50,27 @@ const appRouter = router({
 		.input(tablesInputSchema.assert)
 		.query(({ input }): Array<Category> => getTable(input.table).categories),
 
-	watchTables: procedure.subscription(({ signal }): AsyncIterableIterator<Array<BookmarkTable>> => {
-		const mappedTables$ = tables$.pipe(
-			map(dbs => entries(dbs).map(([name, { emoji }]) => ({ name, emoji }))),
+	watchTables: procedure.subscription(({ signal }): AsyncIterableIterator<TablesUpdate> => {
+		function toBookmarkTable([name, { emoji }]: [string, TableEntry]): BookmarkTable {
+			return { name, emoji };
+		}
+
+		const tablesUpdates$: Observable<TablesUpdate> = tables$.pipe(
+			map(tables => entries(tables).map(toBookmarkTable)),
+			pairwise(),
+			map(([prev, curr]) => ({
+				tables: curr,
+				added: curr.filter(t => !prev.some(p => p.name === t.name)),
+				removed: prev.filter(t => !curr.some(c => c.name === t.name)),
+			})),
+			startWith({
+				tables: entries(getTables()).map(toBookmarkTable),
+				added: [],
+				removed: [],
+			}),
 			takeUntil(toAborted(signal)),
 		);
-		return toAsyncGenerator(mappedTables$);
+		return toAsyncGenerator(tablesUpdates$);
 	}),
 
 	createBookmarks: procedure
