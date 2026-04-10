@@ -12,7 +12,7 @@ export const tagColors$: Observable<Record<string, string>> = currentTable$.pipe
 	distinctUntilChanged(isEqual),
 );
 
-function createColorObject$() {
+function createColorObject$(): Observable<Record<string, string>> {
 	return combineLatest([color$, allTags$]).pipe(
 		withLatestFrom(categories$),
 		map(([[globalColor, tags], categories]) =>

@@ -2,7 +2,7 @@ import { client } from '@api/client';
 import { showError } from '@components/error/errors$';
 import type { BookmarkTable } from 'bookmarksapp-schemas/schemas';
 import { first, isNil } from 'lodash';
-import { BehaviorSubject, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
 
 const LC_KEY = 'currentTable';
 
@@ -10,7 +10,7 @@ export const tables: Array<BookmarkTable> = await client.getTables.query();
 const tableNames = tables.map(({ name }) => name);
 const tablesSubject = new BehaviorSubject<string>(getInitialCurrentTable());
 
-export const currentTable$: Observable<string> = tablesSubject.asObservable().pipe(
+export const currentTable$: Observable<string | undefined> = tablesSubject.asObservable().pipe(
 	tap(table => localStorage.setItem(LC_KEY, table)),
 	shareReplay({ bufferSize: 1, refCount: true }),
 );
@@ -18,6 +18,7 @@ export const currentTable$: Observable<string> = tablesSubject.asObservable().pi
 export function fromCurrentTable<T>(fn: (table: string) => Promise<T>): Observable<T> {
 	return currentTable$.pipe(
 		take(1),
+		filter(table => !isNil(table)),
 		switchMap(fn),
 	);
 }

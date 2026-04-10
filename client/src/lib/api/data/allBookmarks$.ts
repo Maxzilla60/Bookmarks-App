@@ -3,7 +3,7 @@ import { fromSubscription } from '@api/fromSubscription';
 import { validate } from '@util/validate';
 import type { Bookmark, BookmarkFromDB, VersusVote } from 'bookmarksapp-schemas/schemas';
 import { bookmarkSchema } from 'bookmarksapp-schemas/schemas';
-import { chain, isEqual } from 'lodash';
+import { chain, isEqual, isNil } from 'lodash';
 import { catchError, combineLatest, distinctUntilChanged, map, type Observable, of, shareReplay, startWith, switchMap, tap } from 'rxjs';
 import { currentTable$ } from './currentTable$';
 
@@ -14,14 +14,23 @@ type BookmarksAndVotesFromDB = {
 
 const bookmarksAndVotes$: Observable<BookmarksAndVotesFromDB> =
 	currentTable$.pipe(
-		switchMap(table => combineLatest({
-			bookmarks: fromSubscription<Array<BookmarkFromDB>>(callbacks =>
-				client.watchBookmarks.subscribe({ table }, callbacks),
-			),
-			votes: fromSubscription<Array<VersusVote>>(callbacks =>
-				client.watchVotes.subscribe({ table }, callbacks),
-			),
-		})),
+		switchMap(table => {
+			if (isNil(table)) {
+				return of({
+					bookmarks: [],
+					votes: [],
+				});
+			}
+
+			return combineLatest({
+				bookmarks: fromSubscription<Array<BookmarkFromDB>>(callbacks =>
+					client.watchBookmarks.subscribe({ table }, callbacks),
+				),
+				votes: fromSubscription<Array<VersusVote>>(callbacks =>
+					client.watchVotes.subscribe({ table }, callbacks),
+				),
+			});
+		}),
 	);
 
 export const allBookmarks$: Observable<Array<Bookmark>> = bookmarksAndVotes$.pipe(
