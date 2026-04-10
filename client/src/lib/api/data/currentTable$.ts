@@ -1,14 +1,18 @@
 import { client } from '@api/client';
+import { fromSubscription } from '@api/fromSubscription';
 import { showError } from '@components/error/errors$';
 import type { BookmarkTable } from 'bookmarksapp-schemas/schemas';
 import { first, isNil } from 'lodash';
-import { BehaviorSubject, filter, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, type Observable, shareReplay, switchMap, take, tap } from 'rxjs';
 
 const LC_KEY = 'currentTable';
 
-export const tables: Array<BookmarkTable> = await client.getTables.query();
-const tableNames = tables.map(({ name }) => name);
-const tablesSubject = new BehaviorSubject<string>(getInitialCurrentTable());
+export const tables$: Observable<Array<BookmarkTable>> = fromSubscription<Array<BookmarkTable>>(
+	callbacks => client.watchTables.subscribe(undefined, callbacks),
+).pipe(shareReplay({ bufferSize: 1, refCount: false }));
+
+const initialTables = await firstValueFrom(tables$);
+const tablesSubject = new BehaviorSubject<string>(getInitialCurrentTable(initialTables));
 
 export const currentTable$: Observable<string | undefined> = tablesSubject.asObservable().pipe(
 	tap(table => localStorage.setItem(LC_KEY, table)),
@@ -24,14 +28,17 @@ export function fromCurrentTable<T>(fn: (table: string) => Promise<T>): Observab
 }
 
 export function switchTable(table: string): void {
-	if (tableNames.includes(table)) {
-		tablesSubject.next(table);
-	} else {
-		showError(`Table '${table}' not found!`);
-	}
+	tables$.pipe(take(1)).subscribe(tables => {
+		if (tables.map(t => t.name).includes(table)) {
+			tablesSubject.next(table);
+		} else {
+			showError(`Table '${table}' not found!`);
+		}
+	});
 }
 
-function getInitialCurrentTable(): string {
+function getInitialCurrentTable(tables: Array<BookmarkTable>): string {
+	const tableNames = tables.map(({ name }) => name);
 	const fromLocalStorage = getCurrentTableFromLocalStorage();
 	if (!isNil(fromLocalStorage) && tableNames.includes(fromLocalStorage)) {
 		return fromLocalStorage;

@@ -27,6 +27,7 @@ class MockWsConnection {
 
 	constructor(
 		private readonly ws: WebSocketRoute,
+		private tables: Array<BookmarkTable>,
 		private bookmarks: Array<BookmarkFromDB>,
 		private votes: Array<VersusVote>,
 	) {
@@ -46,7 +47,9 @@ class MockWsConnection {
 					ws.send(JSON.stringify({ id: msg.id, result: { type: 'started' } }));
 
 					// Immediately deliver the current snapshot for this subscription
-					if (path === 'watchBookmarks') {
+					if (path === 'watchTables') {
+						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.tables } }));
+					} else if (path === 'watchBookmarks') {
 						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.bookmarks } }));
 					} else if (path === 'watchVotes') {
 						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.votes } }));
@@ -56,6 +59,15 @@ class MockWsConnection {
 				}
 			}
 		});
+	}
+
+	pushTables(tables: Array<BookmarkTable>): void {
+		this.tables = tables;
+		for (const [id, path] of this.subscriptions) {
+			if (path === 'watchTables') {
+				this.ws.send(JSON.stringify({ id, result: { type: 'data', data: tables } }));
+			}
+		}
 	}
 
 	pushBookmarks(bookmarks: Array<BookmarkFromDB>): void {
@@ -90,14 +102,21 @@ export class MockApi {
 	private connections: Array<MockWsConnection> = [];
 
 	constructor(
+		private tables: Array<BookmarkTable>,
 		private bookmarks: Array<BookmarkFromDB>,
 		private votes: Array<VersusVote>,
 	) {}
 
 	handleWsConnection(ws: WebSocketRoute): void {
 		this.connections.push(
-			new MockWsConnection(ws, [...this.bookmarks], [...this.votes]),
+			new MockWsConnection(ws, [...this.tables], [...this.bookmarks], [...this.votes]),
 		);
+	}
+
+	/** Push an updated tables list to all active WebSocket subscriptions. */
+	pushTables(tables: Array<BookmarkTable>): void {
+		this.tables = tables;
+		for (const conn of this.connections) conn.pushTables(tables);
 	}
 
 	/** Push an updated bookmark list to all active WebSocket subscriptions. */
@@ -127,20 +146,18 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
 	const bookmarks = options.bookmarks ?? [];
 	const votes = options.votes ?? [];
 
-	const mockApi = new MockApi(bookmarks, votes);
+	const mockApi = new MockApi(tables, bookmarks, votes);
 
 	// ── HTTP interception (queries + mutations) ──────────────────────────────
 	// tRPC httpBatchLink uses GET for queries, POST for mutations.
 	// Multiple procedures can be batched: /proc1,proc2?batch=1
 	await page.route('http://localhost:3000/**', async route => {
 		const url = new URL(route.request().url());
-		// pathname is like "/getTables" or "/createBookmarks,editBookmark"
+		// pathname is like "/getCategories" or "/createBookmarks,editBookmark"
 		const procedures = url.pathname.slice(1).split(',');
 
 		const results = procedures.map(proc => {
 			switch (proc) {
-				case 'getTables':
-					return tables;
 				case 'getCategories':
 					return [];
 				default:
