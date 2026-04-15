@@ -1,5 +1,5 @@
 import type { BookmarkFromDB, Category, VersusVote } from 'bookmarksapp-schemas/schemas';
-import { chain, endsWith, fromPairs, isEmpty, replace } from 'lodash-es';
+import { chain, endsWith, fromPairs, isEmpty, isEqual, keys, replace } from 'lodash-es';
 import { LowSync } from 'lowdb';
 import { JSONFileSync } from 'lowdb/node';
 import fs from 'node:fs';
@@ -71,7 +71,9 @@ function watchTables(): void {
 			.map(tableName => [tableName, openTableEntry(tableName)])
 			.fromPairs()
 			.value();
-		tablesSubject.next(tables);
+		if (!isEqual(keys(tables), keys(tablesSubject.value))) {
+			tablesSubject.next(tables);
+		}
 	});
 }
 
