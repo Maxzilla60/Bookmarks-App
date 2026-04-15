@@ -7,6 +7,7 @@
 	import Tag from '@components/shared/Tag.svelte';
 	import { type } from 'arktype';
 	import { bookmarkSchema, tagSchema, titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+	import { chain, filter as lFilter, find, isEmpty } from 'lodash';
 	import { BookmarkPlusIcon } from 'lucide-svelte';
 	import { BehaviorSubject, combineLatest, filter, identity, map, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 
@@ -46,14 +47,11 @@
 		});
 
 	const parsedTags$: Observable<Array<string>> = tagsRawSubject.asObservable().pipe(
-		map(raw => raw.split(',').map(t => t.trim()).filter(t => t.length > 0)),
+		map(raw => chain(raw).split(',').invokeMap('trim').compact().value()),
 	);
 
 	const validTags$: Observable<Array<string>> = parsedTags$.pipe(
-		map(tags => tags.filter(tag => {
-			const result = tagSchema(tag);
-			return !(result instanceof type.errors);
-		})),
+		map(tags => lFilter(tags, tag => !(tagSchema(tag) instanceof type.errors))),
 	);
 
 	const tagsAreInvalid$: Observable<boolean> = combineLatest({
@@ -78,7 +76,7 @@
 		switchMap(() => titleSubject.asObservable().pipe(
 			map(value => {
 				if (bookmarkSchema.get('title')(value) instanceof type.errors) {
-					return value.length === 0 ? 'Title is required' : 'Title cannot contain newlines';
+					return isEmpty(value) ? 'Title is required' : 'Title cannot contain newlines';
 				}
 				return null;
 			}),
@@ -91,7 +89,7 @@
 		switchMap(() => urlSubject.asObservable().pipe(
 			map(value => {
 				if (bookmarkSchema.get('url')(value) instanceof type.errors) {
-					return value.length === 0 ? 'URL is required' : 'Please enter a valid URL';
+					return isEmpty(value) ? 'URL is required' : 'Please enter a valid URL';
 				}
 				return null;
 			}),
@@ -103,7 +101,7 @@
 		filter(touched => touched),
 		switchMap(() => combineLatest({ parsed: parsedTags$, valid: validTags$ })),
 		map(({ parsed, valid }) => {
-			if (parsed.length === 0) {
+			if (isEmpty(parsed)) {
 				return null;
 			}
 			if (parsed.length !== valid.length) {
@@ -123,7 +121,7 @@
 			allBookmarks$,
 		),
 	).subscribe(([, title, url, tags, allBookmarks]) => {
-		const existing = allBookmarks.find(b => b.url === url);
+		const existing = find(allBookmarks, { url });
 		if (existing) {
 			showError(`A bookmark with this URL already exists:\n${url}`);
 			return;
