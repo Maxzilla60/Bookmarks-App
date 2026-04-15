@@ -137,11 +137,10 @@ const appRouter = router({
 			const entry = getTable(input.table);
 
 			entry.mutate(({ bookmarks }) => {
-				bookmarks
-					.filter(({ id }) => input.ids.includes(id))
-					.forEach(b => {
-						b.tags = uniq([...b.tags, input.tag]);
-					});
+				input.ids.forEach(id => {
+					const bookmark = findBookmarkByID(bookmarks, id);
+					bookmark.tags = uniq([...bookmark.tags, input.tag]);
+				});
 			});
 		}),
 
