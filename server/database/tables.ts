@@ -1,11 +1,13 @@
 import type { BookmarkFromDB, Category, VersusVote } from 'bookmarksapp-schemas/schemas';
-import { chain, endsWith, fromPairs, isEmpty, isEqual, keys, replace } from 'lodash-es';
+import { chain, cloneDeep, endsWith, fromPairs, isEmpty, isEqual, isNil, keys, replace } from 'lodash-es';
 import { LowSync } from 'lowdb';
 import { JSONFileSync } from 'lowdb/node';
 import fs from 'node:fs';
 import { BehaviorSubject, type Observable } from 'rxjs';
 
 const tablesPath = 'database/tables';
+
+const MAX_UNDO_STACK = 50;
 
 type TableData = {
 	emoji: string;
@@ -26,11 +28,16 @@ export type TableEntry = {
 	bookmarks$: Observable<Array<BookmarkFromDB>>;
 	/** Live Observable of all votes — replays the current value on subscription. */
 	votes$: Observable<Array<VersusVote>>;
+	/** Emits whether there is anything on the undo stack for this table. */
+	canUndo$: Observable<boolean>;
 	/**
 	 * Apply a synchronous mutation to bookmarks/votes, write the JSON file,
 	 * then broadcast the updated arrays to any active subscribers.
+	 * Pass `undoable = false` to skip pushing to the undo stack (e.g. visitBookmark).
 	 */
-	mutate: (fn: (data: MutableData) => void) => void;
+	mutate: (fn: (data: MutableData) => void, undoable?: boolean) => void;
+	/** Revert the most recent undoable mutation, if any. */
+	undo: () => void;
 };
 
 const tablesSubject = new BehaviorSubject<Record<string, TableEntry>>(getInitialTables());
@@ -89,12 +96,37 @@ function openTableEntry(tableName: string): TableEntry {
 	const bookmarksSubject = new BehaviorSubject<Array<BookmarkFromDB>>(db.data.bookmarks);
 	const votesSubject = new BehaviorSubject<Array<VersusVote>>(db.data.votes);
 
-	const mutate = (fn: (data: MutableData) => void): void => {
+	const undoStack: Array<MutableData> = [];
+	const canUndoSubject = new BehaviorSubject<boolean>(false);
+
+	const mutate = (fn: (data: MutableData) => void, undoable = true): void => {
+		if (undoable) {
+			const snapshot = cloneDeep<MutableData>({ bookmarks: db.data.bookmarks, votes: db.data.votes });
+			undoStack.push(snapshot);
+			if (undoStack.length > MAX_UNDO_STACK) {
+				undoStack.shift();
+			}
+			canUndoSubject.next(true);
+		}
 		fn(db.data);
 		db.write();
-		// Emit shallow copies so subscribers always see a new reference.
-		bookmarksSubject.next([...db.data.bookmarks]);
-		votesSubject.next([...db.data.votes]);
+		bookmarksSubject.next(db.data.bookmarks);
+		votesSubject.next(db.data.votes);
+	};
+
+	const undo = (): void => {
+		const snapshot = undoStack.pop();
+
+		if (isNil(snapshot)) {
+			return;
+		}
+
+		db.data.bookmarks = snapshot.bookmarks;
+		db.data.votes = snapshot.votes;
+		db.write();
+		bookmarksSubject.next(snapshot.bookmarks);
+		votesSubject.next(snapshot.votes);
+		canUndoSubject.next(undoStack.length > 0);
 	};
 
 	return {
@@ -102,6 +134,8 @@ function openTableEntry(tableName: string): TableEntry {
 		categories: db.data.categories,
 		bookmarks$: bookmarksSubject.asObservable(),
 		votes$: votesSubject.asObservable(),
+		canUndo$: canUndoSubject.asObservable(),
 		mutate,
+		undo,
 	};
 }
