@@ -8,6 +8,7 @@
 	import SortingButton from './components/sort/SortingButton.svelte';
 	import StatsButton from './components/stats/StatsButon.svelte';
 	import TableSelect from './components/TableSelect.svelte';
+	import UndoButton from './components/UndoButton.svelte';
 </script>
 
 <div class="toolbar">
@@ -18,6 +19,7 @@
 	<BookmarksCount/>
 	<span class="top-bar-divider"></span>
 
+	<UndoButton/>
 	<NewVersusButton/>
 	<RandomBookmark/>
 	<span class="top-bar-divider"></span>

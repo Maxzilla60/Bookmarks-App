@@ -124,7 +124,7 @@ const appRouter = router({
 				const bookmark = findBookmarkByID(bookmarks, input.id);
 
 				bookmark.visitCount++;
-			});
+			}, false);
 		}),
 
 	tagBookmarks: procedure
@@ -215,6 +215,21 @@ const appRouter = router({
 				takeUntil(toAborted(signal)),
 			);
 			return toAsyncGenerator(votes$);
+		}),
+
+	undo: procedure
+		.input(tablesInputSchema.assert)
+		.mutation(({ input }): void => {
+			getTable(input.table).undo();
+		}),
+
+	watchCanUndo: procedure
+		.input(tablesInputSchema.assert)
+		.subscription(({ input, signal }): AsyncIterableIterator<boolean> => {
+			const canUndo$ = getTable(input.table).canUndo$.pipe(
+				takeUntil(toAborted(signal)),
+			);
+			return toAsyncGenerator(canUndo$);
 		}),
 });
 

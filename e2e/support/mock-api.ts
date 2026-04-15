@@ -5,6 +5,7 @@ export type MockApiOptions = {
 	tables?: Array<BookmarkTable>;
 	bookmarks?: Array<BookmarkFromDB>;
 	votes?: Array<VersusVote>;
+	canUndo?: boolean;
 };
 
 type TRPCWsMsg = {
@@ -30,6 +31,7 @@ class MockWsConnection {
 		private tables: Array<BookmarkTable>,
 		private bookmarks: Array<BookmarkFromDB>,
 		private votes: Array<VersusVote>,
+		private canUndo: boolean,
 	) {
 		ws.onMessage(raw => {
 			const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw as unknown as ArrayBuffer);
@@ -54,6 +56,8 @@ class MockWsConnection {
 						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.bookmarks } }));
 					} else if (path === 'watchVotes') {
 						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.votes } }));
+					} else if (path === 'watchCanUndo') {
+						ws.send(JSON.stringify({ id: msg.id, result: { type: 'data', data: this.canUndo } }));
 					}
 				} else if (msg.method === 'subscription.stop') {
 					this.subscriptions.delete(msg.id);
@@ -96,6 +100,15 @@ class MockWsConnection {
 			}
 		}
 	}
+
+	pushCanUndo(canUndo: boolean): void {
+		this.canUndo = canUndo;
+		for (const [id, path] of this.subscriptions) {
+			if (path === 'watchCanUndo') {
+				this.ws.send(JSON.stringify({ id, result: { type: 'data', data: canUndo } }));
+			}
+		}
+	}
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -114,11 +127,12 @@ export class MockApi {
 		private tables: Array<BookmarkTable>,
 		private bookmarks: Array<BookmarkFromDB>,
 		private votes: Array<VersusVote>,
+		private canUndo: boolean,
 	) {}
 
 	handleWsConnection(ws: WebSocketRoute): void {
 		this.connections.push(
-			new MockWsConnection(ws, [...this.tables], [...this.bookmarks], [...this.votes]),
+			new MockWsConnection(ws, [...this.tables], [...this.bookmarks], [...this.votes], this.canUndo),
 		);
 	}
 
@@ -139,6 +153,12 @@ export class MockApi {
 		this.votes = votes;
 		for (const conn of this.connections) conn.pushVotes(votes);
 	}
+
+	/** Push an updated canUndo state to all active WebSocket subscriptions. */
+	pushCanUndo(canUndo: boolean): void {
+		this.canUndo = canUndo;
+		for (const conn of this.connections) conn.pushCanUndo(canUndo);
+	}
 }
 
 /**
@@ -154,8 +174,9 @@ export async function setupMockApi(page: Page, options: MockApiOptions = {}): Pr
 	const tables = options.tables ?? [{ name: 'spellbooks', emoji: '📖' }];
 	const bookmarks = options.bookmarks ?? [];
 	const votes = options.votes ?? [];
+	const canUndo = options.canUndo ?? false;
 
-	const mockApi = new MockApi(tables, bookmarks, votes);
+	const mockApi = new MockApi(tables, bookmarks, votes, canUndo);
 
 	// ── HTTP interception (queries + mutations) ──────────────────────────────
 	// tRPC httpBatchLink uses GET for queries, POST for mutations.
