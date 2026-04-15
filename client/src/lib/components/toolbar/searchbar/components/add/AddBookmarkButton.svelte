@@ -6,15 +6,18 @@
 	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
 	import Tag from '@components/shared/Tag.svelte';
 	import { type } from 'arktype';
-	import { tagSchema, titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+	import { bookmarkSchema, tagSchema, titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 	import { BookmarkPlusIcon } from 'lucide-svelte';
-	import { BehaviorSubject, combineLatest, filter, identity, map, type Observable, Subject, withLatestFrom } from 'rxjs';
+	import { BehaviorSubject, combineLatest, filter, identity, map, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 
 	const addDialogId = 'add_bookmark_dialog';
 
 	const titleSubject = new BehaviorSubject<string>('');
 	const urlSubject = new BehaviorSubject<string>('');
 	const tagsRawSubject = new BehaviorSubject<string>('');
+	const titleTouchedSubject = new BehaviorSubject<boolean>(false);
+	const urlTouchedSubject = new BehaviorSubject<boolean>(false);
+	const tagsTouchedSubject = new BehaviorSubject<boolean>(false);
 
 	const showDialogSubject = createOpenDialogSubject(addDialogId);
 	showDialogSubject.asObservable()
@@ -32,9 +35,14 @@
 			if (tagsEl) {
 				tagsEl.value = '';
 			}
+
 			titleSubject.next('');
 			urlSubject.next('');
 			tagsRawSubject.next('');
+
+			titleTouchedSubject.next(false);
+			urlTouchedSubject.next(false);
+			tagsTouchedSubject.next(false);
 		});
 
 	const parsedTags$: Observable<Array<string>> = tagsRawSubject.asObservable().pipe(
@@ -63,6 +71,47 @@
 		map(({ title, url, tagsInvalid }) =>
 			titleAndUrlSchema({ title, url }) instanceof type.errors || tagsInvalid,
 		),
+	);
+
+	const titleError$: Observable<string | null> = titleTouchedSubject.asObservable().pipe(
+		filter(touched => touched),
+		switchMap(() => titleSubject.asObservable().pipe(
+			map(value => {
+				if (bookmarkSchema.get('title')(value) instanceof type.errors) {
+					return value.length === 0 ? 'Title is required' : 'Title cannot contain newlines';
+				}
+				return null;
+			}),
+		)),
+		startWith(null),
+	);
+
+	const urlError$: Observable<string | null> = urlTouchedSubject.asObservable().pipe(
+		filter(touched => touched),
+		switchMap(() => urlSubject.asObservable().pipe(
+			map(value => {
+				if (bookmarkSchema.get('url')(value) instanceof type.errors) {
+					return value.length === 0 ? 'URL is required' : 'Please enter a valid URL';
+				}
+				return null;
+			}),
+		)),
+		startWith(null),
+	);
+
+	const tagsError$: Observable<string | null> = tagsTouchedSubject.asObservable().pipe(
+		filter(touched => touched),
+		switchMap(() => combineLatest({ parsed: parsedTags$, valid: validTags$ })),
+		map(({ parsed, valid }) => {
+			if (parsed.length === 0) {
+				return null;
+			}
+			if (parsed.length !== valid.length) {
+				return 'Tags must only contain letters, numbers, and underscores';
+			}
+			return null;
+		}),
+		startWith(null),
 	);
 
 	const addBookmarkSubject = new Subject<void>();
@@ -100,8 +149,13 @@
 				id="add_title"
 				type="text"
 				placeholder="Bookmark title"
+				class:invalid={$titleError$ !== null}
 				oninput={e => titleSubject.next(e.currentTarget.value)}
+				onblur={() => titleTouchedSubject.next(true)}
 			/>
+			{#if $titleError$}
+				<span class="error-hint">{$titleError$}</span>
+			{/if}
 		</label>
 
 		<label for="add_url">
@@ -110,8 +164,13 @@
 				id="add_url"
 				type="url"
 				placeholder="https://..."
+				class:invalid={$urlError$ !== null}
 				oninput={e => urlSubject.next(e.currentTarget.value)}
+				onblur={() => urlTouchedSubject.next(true)}
 			/>
+			{#if $urlError$}
+				<span class="error-hint">{$urlError$}</span>
+			{/if}
 		</label>
 
 		<label for="add_tags">
@@ -121,8 +180,13 @@
 				id="add_tags"
 				type="text"
 				placeholder="tag1, tag2, tag3"
+				class:invalid={$tagsError$ !== null}
 				oninput={e => tagsRawSubject.next(e.currentTarget.value)}
+				onblur={() => tagsTouchedSubject.next(true)}
 			/>
+			{#if $tagsError$}
+				<span class="error-hint">{$tagsError$}</span>
+			{/if}
 		</label>
 
 		{#if $validTags$.length > 0}
@@ -157,6 +221,9 @@
 	label {
 		font-weight: bold;
 		color: #333;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
 	}
 
 	.hint {
@@ -178,6 +245,21 @@
 		outline: none;
 		border-color: var(--accent-color-500);
 		box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color-500) 25%, transparent);
+	}
+
+	input.invalid {
+		border-color: #e53e3e;
+	}
+
+	input.invalid:focus {
+		border-color: #e53e3e;
+		box-shadow: 0 0 0 2px color-mix(in srgb, #e53e3e 25%, transparent);
+	}
+
+	.error-hint {
+		font-size: 0.8em;
+		font-weight: normal;
+		color: #e53e3e;
 	}
 
 	.tag-preview {

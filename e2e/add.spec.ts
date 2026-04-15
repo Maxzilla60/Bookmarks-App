@@ -98,6 +98,113 @@ test('Add Bookmark button is enabled with a valid title, URL, and tags', async (
 	await expect(page.locator('dialog#add_bookmark_dialog button')).toBeEnabled();
 });
 
+// ─── Validation error hints ───────────────────────────────────────────────────
+
+test('No error hints are shown before any field is blurred', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await expect(page.locator('dialog#add_bookmark_dialog .error-hint')).toHaveCount(0);
+});
+
+test('Title hint "Title is required" appears after blurring an empty title field', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_title').press('Tab');
+
+	const hint = page.locator('dialog#add_bookmark_dialog label:has(#add_title) .error-hint');
+	await expect(hint).toBeVisible();
+	await expect(hint).toHaveText('Title is required');
+});
+
+test('Title hint disappears once a valid title is entered', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_title').press('Tab');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_title) .error-hint')).toBeVisible();
+
+	await page.locator('input#add_title').fill('My Site');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_title) .error-hint')).not.toBeVisible();
+});
+
+test('URL hint "URL is required" appears after blurring an empty URL field', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_url').press('Tab');
+
+	const hint = page.locator('dialog#add_bookmark_dialog label:has(#add_url) .error-hint');
+	await expect(hint).toBeVisible();
+	await expect(hint).toHaveText('URL is required');
+});
+
+test('URL hint "Please enter a valid URL" appears after blurring an invalid URL', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_url').fill('not-a-url');
+	await page.locator('input#add_url').press('Tab');
+
+	const hint = page.locator('dialog#add_bookmark_dialog label:has(#add_url) .error-hint');
+	await expect(hint).toBeVisible();
+	await expect(hint).toHaveText('Please enter a valid URL');
+});
+
+test('URL hint disappears once a valid URL is entered', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_url').fill('not-a-url');
+	await page.locator('input#add_url').press('Tab');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_url) .error-hint')).toBeVisible();
+
+	await page.locator('input#add_url').fill('https://example.com');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_url) .error-hint')).not.toBeVisible();
+});
+
+test('Tags hint appears after blurring with invalid tags', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_tags').fill('valid, bad tag!');
+	await page.locator('input#add_tags').press('Tab');
+
+	const hint = page.locator('dialog#add_bookmark_dialog label:has(#add_tags) .error-hint');
+	await expect(hint).toBeVisible();
+	await expect(hint).toHaveText('Tags must only contain letters, numbers, and underscores');
+});
+
+test('Tags hint is not shown when the tags field is empty and blurred', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_tags').press('Tab');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_tags) .error-hint')).not.toBeVisible();
+});
+
+test('Tags hint disappears once the invalid tag is corrected', async ({ page }) => {
+	await setupMockApi(page);
+	await page.goto('/');
+	await openAddDialog(page);
+
+	await page.locator('input#add_tags').fill('bad tag!');
+	await page.locator('input#add_tags').press('Tab');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_tags) .error-hint')).toBeVisible();
+
+	await page.locator('input#add_tags').fill('goodtag');
+	await expect(page.locator('dialog#add_bookmark_dialog label:has(#add_tags) .error-hint')).not.toBeVisible();
+});
+
 // ─── Tag preview ──────────────────────────────────────────────────────────────
 
 test('valid tags show a live chip preview', async ({ page }) => {
