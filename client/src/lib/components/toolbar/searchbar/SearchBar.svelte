@@ -20,9 +20,9 @@
 	<BookmarksCount/>
 	<span class="top-bar-divider"></span>
 
-	<UndoButton/>
 	<NewVersusButton/>
 	<RandomBookmark/>
+	<UndoButton/>
 	<span class="top-bar-divider"></span>
 
 	<SortingButton/>
