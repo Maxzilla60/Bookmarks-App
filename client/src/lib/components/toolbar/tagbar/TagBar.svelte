@@ -78,7 +78,9 @@
 			</span>
 		</fieldset>
 	</form>
-	<span class="top-bar-divider"></span>
+
+	<hr/>
+
 	<button
 		onclick={() => scrollToSelectedBookmarkSubject.next()}
 		title="Go to selected bookmark(s) in list (Ctrl + G)"

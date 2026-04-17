@@ -14,24 +14,24 @@
 
 <div class="toolbar">
 	<TableSelect/>
-	<span class="top-bar-divider"></span>
+	<hr/>
 
 	<SearchInput/>
 	<BookmarksCount/>
-	<span class="top-bar-divider"></span>
+	<hr/>
 
 	<NewVersusButton/>
 	<RandomBookmark/>
 	<UndoButton/>
-	<span class="top-bar-divider"></span>
+	<hr/>
 
 	<SortingButton/>
-	<span class="top-bar-divider"></span>
+	<hr/>
 
 	<AddBookmarkButton/>
 	<ImportButton/>
 	<StatsButton/>
-	<span class="top-bar-divider"></span>
+	<hr/>
 
 	<ColorPicker/>
 </div>

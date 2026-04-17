@@ -88,11 +88,12 @@ a {
 	display: flex;
 	gap: 10px;
 	align-items: center;
-}
 
-.top-bar-divider {
-	border: 1px solid hsl(var(--grey-color-hue), 10%, 45%);
-	height: 100%;
+	hr {
+		margin: 0;
+		border: 1px solid hsl(var(--grey-color-hue), 10%, 45%);
+		height: 100%;
+	}
 }
 
 .dialog-container > button {
