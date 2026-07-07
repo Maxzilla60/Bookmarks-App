@@ -2,16 +2,16 @@ import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
 import { validate } from '@util/validate';
-import type { Bookmark, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
-import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+import type { UpdateBookmark } from 'bookmarksapp-schemas/schemas';
+import { updateBookmarkSchema } from 'bookmarksapp-schemas/schemas';
 import { PencilIcon } from 'lucide-svelte';
 
-const update = createAction<Pick<Bookmark, 'id' | 'title' | 'url'>>(
+const update = createAction<{ id: string } & UpdateBookmark>(
 	params => fromCurrentTable(table =>
 		client.editBookmark.mutate({
 			table,
 			id: params.id,
-			titleAndUrl: params,
+			updateBookmark: params,
 		}),
 	),
 	{
@@ -21,14 +21,14 @@ const update = createAction<Pick<Bookmark, 'id' | 'title' | 'url'>>(
 	},
 );
 
-export function editBookmark(id: string, titleAndUrl: TitleAndUrl): void {
-	const success = validate(titleAndUrlSchema, titleAndUrl, 'editBookmark');
+export function editBookmark(id: string, updateBookmark: UpdateBookmark): void {
+	const success = validate(updateBookmarkSchema, updateBookmark, 'editBookmark');
 	if (!success) {
 		return;
 	}
 
 	update({
 		id,
-		...titleAndUrl,
+		...updateBookmark,
 	});
 }

@@ -2,7 +2,7 @@ import { initTRPC } from '@trpc/server';
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import { type } from 'arktype';
-import { type BookmarkFromDB, bookmarkInputSchema, type BookmarkTable, type Category, idSchema, type TablesUpdate, tagSchema, titleAndUrlSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
+import { type BookmarkFromDB, bookmarkInputSchema, type BookmarkTable, type Category, idSchema, type TablesUpdate, tagSchema, updateBookmarkSchema, type VersusVote } from 'bookmarksapp-schemas/schemas';
 import cors from 'cors';
 import { entries, keys, uniq } from 'lodash-es';
 import { nanoid } from 'nanoid';
@@ -99,7 +99,7 @@ const appRouter = router({
 		.input(type({
 			'...': tablesInputSchema,
 			id: idSchema,
-			titleAndUrl: titleAndUrlSchema,
+			updateBookmark: updateBookmarkSchema,
 		}).assert)
 		.mutation(({ input }): void => {
 			const entry = getTable(input.table);
@@ -107,8 +107,9 @@ const appRouter = router({
 			entry.mutate(({ bookmarks }) => {
 				const bookmarkToUpdate = findBookmarkByID(bookmarks, input.id);
 
-				bookmarkToUpdate.title = input.titleAndUrl.title;
-				bookmarkToUpdate.url = input.titleAndUrl.url;
+				bookmarkToUpdate.title = input.updateBookmark.title;
+				bookmarkToUpdate.url = input.updateBookmark.url;
+				bookmarkToUpdate.tags = input.updateBookmark.tags;
 			});
 		}),
 

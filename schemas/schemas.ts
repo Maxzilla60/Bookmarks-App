@@ -45,6 +45,11 @@ export const bookmarkInputSchema = type({
 	'tags?': tagsSchema,
 });
 
+export const updateBookmarkSchema = type({
+	'...': titleAndUrlSchema,
+	tags: tagsSchema,
+});
+
 export const versusVoteSchema = type({
 	id: idSchema,
 	winner: idSchema,
@@ -65,5 +70,6 @@ export type Bookmark = typeof bookmarkSchema.infer;
 export type VersusStats = typeof versusStatsSchema.infer;
 export type TitleAndUrl = typeof titleAndUrlSchema.infer;
 export type BookmarkInput = typeof bookmarkInputSchema.infer;
+export type UpdateBookmark = typeof updateBookmarkSchema.infer;
 export type VersusVote = typeof versusVoteSchema.infer;
 export type Category = typeof categorySchema.infer;
