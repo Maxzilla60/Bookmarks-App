@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { editBookmark } from '@api/actions/editBookmark';
+	import { allTags$ } from '@api/data/allBookmarks$';
 	import PopUp from '@components/shared/popup/PopUp.svelte';
-	import Tag from '@components/shared/Tag.svelte';
 	import { calculateVersusScore, confirmButtonText } from '@util/util';
 	import { type } from 'arktype';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-	import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
-	import { isNil, sortBy } from 'lodash';
+	import { tagSchema, titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
+	import { isEqual, isNil, sortBy } from 'lodash';
 	import { CheckIcon, PencilIcon } from 'lucide-svelte';
-	import { combineLatest, filter, first, map, merge, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+	import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, first, map, merge, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
+	import Tags from 'svelte-tags-input';
 	import { bookmarkDetails$, openBookmarkDetails } from './state';
 
 	type BookmarkWithScore = Bookmark & { versusScore: number };
@@ -44,11 +45,14 @@
 		})),
 	);
 
+	const tagsEditedSubject = new Subject<void>();
+
 	const isEdited$: Observable<boolean> = bookmarkDetails$.pipe(
 		filter(bookmark => !isNil(bookmark)),
 		switchMap(() => merge(
 			titleInputSubject.asObservable(),
 			urlInputSubject.asObservable(),
+			tagsEditedSubject.asObservable(),
 		)),
 		first(),
 		map(() => true),
@@ -70,18 +74,34 @@
 	);
 
 	const doEditSubject = new Subject<void>();
+	const tagsInputSubject = new BehaviorSubject<Array<string>>([]);
+	bookmark$.pipe(
+		map(({ tags }) => sortBy(tags)),
+		distinctUntilChanged(isEqual),
+	).subscribe(tags => tagsInputSubject.next(tags));
+
+	const tagsInput = {
+		subscribe: (run: (value: Array<string>) => void) => {
+			const subscription = tagsInputSubject.subscribe(run);
+			return () => subscription.unsubscribe();
+		},
+		set: (value: Array<string>) => tagsInputSubject.next(value),
+	};
+
 	doEditSubject.asObservable().pipe(
 		withLatestFrom(
 			bookmark$,
 			title$,
 			url$,
+			tagsInputSubject.asObservable(),
 		),
-		map(([, bookmark, title, url]) => ({
-			id: bookmark.id,
-			title,
-			url,
-		})),
-	).subscribe(({ id, title, url }) => editBookmark(id, { title, url }));
+	).subscribe(([, bookmark, title, url, tags]) => {
+		editBookmark(bookmark.id, { title, url, tags });
+	});
+
+	function isValidTag(tag: string): boolean {
+		return !(tagSchema(tag) instanceof type.errors);
+	}
 </script>
 
 <PopUp
@@ -120,9 +140,15 @@
 
 				<dt>tags</dt>
 				<dd>
-					{#each sortBy($bookmark$.tags) as tag ($bookmark$.id + '_' + tag)}
-						<Tag {tag}/>
-					{/each}
+					<Tags
+						bind:tags={$tagsInput}
+						autoComplete={$allTags$}
+						onlyUnique
+						customValidation={isValidTag}
+						onTagAdded={() => tagsEditedSubject.next()}
+						onTagRemoved={() => tagsEditedSubject.next()}
+						placeholder="Add tag..."
+					/>
 				</dd>
 
 				<dt>visitCount</dt>
@@ -210,5 +236,22 @@
 	[contenteditable="true"]:hover {
 		cursor: pointer;
 		background-color: hsl(var(--grey-color-hue), 25%, 87%);
+	}
+
+	dd {
+		:global(.svelte-tags-input-layout) {
+			border-radius: 4px;
+		}
+
+		:global(.svelte-tags-input-tag) {
+			width: unset;
+			border-radius: 29px;
+			padding: 0 10px;
+			display: inline-flex;
+			position: relative;
+			column-gap: 5px;
+			cursor: initial;
+			background-color: var(--accent-color-500);
+		}
 	}
 </style>

@@ -19,7 +19,8 @@
 		"nanoid": "^5.1.5",
 		"randomcolor": "^0.6.2",
 		"rxjs": "^7.8.2",
-		"svelte-sonner": "^1.0.3"
+		"svelte-sonner": "^1.0.3",
+		"svelte-tags-input": "^7.0.2"
 	},
 	"devDependencies": {
 		"@sveltejs/vite-plugin-svelte": "^5.0.3",
