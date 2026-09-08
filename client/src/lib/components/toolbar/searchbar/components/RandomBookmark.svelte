@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { allBookmarks$ } from '@api/data/allBookmarks$';
 	import { selectBookmark } from '@components/list/selectedBookmark';
+	import { SparkleIcon } from '@lucide/svelte';
 	import { randomChoice } from '@util/util';
-	import { SparkleIcon } from 'lucide-svelte';
 	import { map, Subject, withLatestFrom } from 'rxjs';
 
 	const openRandomBookmarkSubject = new Subject<void>();

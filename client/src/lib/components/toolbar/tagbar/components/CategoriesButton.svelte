@@ -3,9 +3,9 @@
 	import PopUp from '@components/shared/popup/PopUp.svelte';
 	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
 	import Tag from '@components/shared/Tag.svelte';
+	import { CheckIcon, TagsIcon } from '@lucide/svelte';
 	import { confirmButtonText } from '@util/util';
 	import { sortBy } from 'lodash';
-	import { CheckIcon, TagsIcon } from 'lucide-svelte';
 	import { filter, map } from 'rxjs';
 
 	const categoriesDialogId = 'categories_dialog';

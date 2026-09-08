@@ -1,10 +1,10 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
+import { BookmarkCheckIcon } from '@lucide/svelte';
 import { validate } from '@util/validate';
 import type { BookmarkInput } from 'bookmarksapp-schemas/schemas';
 import { bookmarkInputSchema } from 'bookmarksapp-schemas/schemas';
-import { BookmarkCheckIcon } from 'lucide-svelte';
 
 const update = createAction<Array<BookmarkInput>>(
 	newBookmarks => fromCurrentTable(table =>

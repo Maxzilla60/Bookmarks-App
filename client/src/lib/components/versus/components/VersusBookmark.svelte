@@ -6,9 +6,9 @@
 	import { selectBookmark } from '@components/list/selectedBookmark';
 	import Tag from '@components/shared/Tag.svelte';
 	import { newVersusBattle } from '@components/versus/versusBattle$';
+	import { EyeIcon, LocateFixedIcon, StarIcon, ToiletIcon } from '@lucide/svelte';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { isNil } from 'lodash';
-	import { EyeIcon, LocateFixedIcon, StarIcon, ToiletIcon } from 'lucide-svelte';
 
 	type Props = {
 		bookmark?: Bookmark;

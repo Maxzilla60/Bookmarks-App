@@ -2,10 +2,10 @@
 	import { tagBookmarks } from '@api/actions/tagBookmarks';
 	import { allBookmarks$, allTags$ } from '@api/data/allBookmarks$';
 	import { selectedBookmarkIds$ } from '@components/list/selectedBookmark';
+	import { LocateFixedIcon, TagIcon } from '@lucide/svelte';
 	import { fromCtrlShortcut } from '@util/util';
 	import { type } from 'arktype';
 	import { tagSchema } from 'bookmarksapp-schemas/schemas';
-	import { LocateFixedIcon, TagIcon } from 'lucide-svelte';
 	import { BehaviorSubject, combineLatest, map, merge, type Observable, Subject, withLatestFrom } from 'rxjs';
 	import CategoriesButton from './components/CategoriesButton.svelte';
 

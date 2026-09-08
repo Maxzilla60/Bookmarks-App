@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PaletteIcon } from 'lucide-svelte';
+	import { PaletteIcon } from '@lucide/svelte';
 	import { color$, cycleColor } from './color';
 </script>
 

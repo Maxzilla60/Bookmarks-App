@@ -10,28 +10,28 @@
 		"upgrade": "npx npm-check-updates -u & npm i"
 	},
 	"dependencies": {
-		"@trpc/client": "^11.1.2",
-		"arktype": "^2.1.20",
+		"@lucide/svelte": "^1.42.0",
+		"@trpc/client": "^11.18.0",
+		"arktype": "^2.2.3",
 		"decay": "^1.0.12",
-		"fuse.js": "^7.3.0",
+		"fuse.js": "^7.5.0",
 		"lodash": "^4.18.1",
-		"lucide-svelte": "^0.511.0",
-		"nanoid": "^5.1.5",
+		"nanoid": "^6.0.1",
 		"randomcolor": "^0.6.2",
 		"rxjs": "^7.8.2",
-		"svelte-sonner": "^1.0.3"
+		"svelte-sonner": "^1.2.1"
 	},
 	"devDependencies": {
-		"@sveltejs/vite-plugin-svelte": "^5.0.3",
-		"@tsconfig/svelte": "^5.0.4",
+		"@sveltejs/vite-plugin-svelte": "^7.3.0",
+		"@tsconfig/svelte": "^5.0.8",
 		"@types/decay": "^1.0.2",
-		"@types/lodash": "^4.17.17",
-		"@types/node": "^22.15.21",
+		"@types/lodash": "^4.17.25",
+		"@types/node": "^26.5.0",
 		"@types/randomcolor": "^0.5.9",
-		"svelte": "^5.55.7",
-		"svelte-check": "^4.2.1",
+		"svelte": "^5.57.0",
+		"svelte-check": "^4.7.6",
 		"tslib": "^2.8.1",
-		"typescript": "~5.8.3",
-		"vite": "^6.4.2"
+		"typescript": "~6.0.3",
+		"vite": "^8.2.2"
 	}
 }

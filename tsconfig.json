@@ -1,19 +1,18 @@
 {
 	"extends": "@tsconfig/svelte/tsconfig.json",
 	"compilerOptions": {
-		"baseUrl": ".",
 		"paths": {
 			"@lib/*": [
-				"client/src/lib/*"
+				"./client/src/lib/*"
 			],
 			"@util/*": [
-				"client/src/lib/util/*"
+				"./client/src/lib/util/*"
 			],
 			"@api/*": [
-				"client/src/lib/api/*"
+				"./client/src/lib/api/*"
 			],
 			"@components/*": [
-				"client/src/lib/components/*"
+				"./client/src/lib/components/*"
 			]
 		},
 		"strict": true,

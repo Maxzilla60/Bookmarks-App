@@ -1,10 +1,10 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
+import { PencilIcon } from '@lucide/svelte';
 import { validate } from '@util/validate';
 import type { Bookmark, TitleAndUrl } from 'bookmarksapp-schemas/schemas';
 import { titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
-import { PencilIcon } from 'lucide-svelte';
 
 const update = createAction<Pick<Bookmark, 'id' | 'title' | 'url'>>(
 	params => fromCurrentTable(table =>

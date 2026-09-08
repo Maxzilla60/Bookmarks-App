@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { ArrowDownUpIcon, ArrowUpDownIcon } from '@lucide/svelte';
 	import { BookmarksSort } from '@util/sort.enum';
-	import { ArrowDownUpIcon, ArrowUpDownIcon } from 'lucide-svelte';
 	import { map } from 'rxjs';
 	import { sortType$, toggleSort } from './sorting';
 

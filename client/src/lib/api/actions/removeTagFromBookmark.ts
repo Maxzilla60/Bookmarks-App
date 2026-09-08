@@ -1,8 +1,8 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
+import { TagIcon } from '@lucide/svelte';
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { TagIcon } from 'lucide-svelte';
 
 type RemoveTagFromBookmarkAction = {
 	tagToRemove: string,

@@ -1,9 +1,9 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
+import { TagIcon } from '@lucide/svelte';
 import { validate } from '@util/validate';
 import { type Bookmark, tagSchema } from 'bookmarksapp-schemas/schemas';
-import { TagIcon } from 'lucide-svelte';
 
 type TagBookmarkAction = {
 	bookmarks: Array<Bookmark>,

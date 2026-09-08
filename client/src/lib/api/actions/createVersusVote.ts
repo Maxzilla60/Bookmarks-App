@@ -1,8 +1,8 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
+import { StarIcon } from '@lucide/svelte';
 import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-import { StarIcon } from 'lucide-svelte';
 
 type CreateVersusVoteAction = {
 	winningBookmark: Bookmark,

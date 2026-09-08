@@ -5,10 +5,10 @@
 	import PopUp from '@components/shared/popup/PopUp.svelte';
 	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
 	import Tag from '@components/shared/Tag.svelte';
+	import { BookmarkPlusIcon } from '@lucide/svelte';
 	import { type } from 'arktype';
 	import { bookmarkSchema, tagSchema, titleAndUrlSchema } from 'bookmarksapp-schemas/schemas';
 	import { chain, filter as lFilter, find, isEmpty } from 'lodash';
-	import { BookmarkPlusIcon } from 'lucide-svelte';
 	import { BehaviorSubject, combineLatest, filter, identity, map, type Observable, startWith, Subject, switchMap, withLatestFrom } from 'rxjs';
 
 	const addDialogId = 'add_bookmark_dialog';

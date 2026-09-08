@@ -2,8 +2,8 @@
 	import PopUp from '@components/shared/popup/PopUp.svelte';
 	import { createOpenDialogSubject } from '@components/shared/popup/popUpDialog';
 	import Tag from '@components/shared/Tag.svelte';
+	import { ChartPieIcon, CheckIcon } from '@lucide/svelte';
 	import { confirmButtonText } from '@util/util';
-	import { ChartPieIcon, CheckIcon } from 'lucide-svelte';
 	import { filter, map } from 'rxjs';
 	import { stats$ } from './stats.js';
 

@@ -1,7 +1,7 @@
 import { client } from '@api/client';
 import { createAction } from '@api/createAction';
 import { fromCurrentTable } from '@api/data/currentTable$';
-import { Undo2Icon } from 'lucide-svelte';
+import { Undo2Icon } from '@lucide/svelte';
 
 const update = createAction<void>(
 	() => fromCurrentTable(table =>

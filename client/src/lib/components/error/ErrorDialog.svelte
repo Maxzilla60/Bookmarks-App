@@ -1,8 +1,8 @@
 <script lang="ts">
 	import PopUp from '@components/shared/popup/PopUp.svelte';
+	import { CheckIcon } from '@lucide/svelte';
 	import { confirmButtonText } from '@util/util';
 	import { first, isEqual, isNil } from 'lodash';
-	import { CheckIcon } from 'lucide-svelte';
 	import { distinctUntilChanged, filter, map, type Observable, tap } from 'rxjs';
 	import { type BookMaxError, dismissError, errors$ } from './errors$';
 

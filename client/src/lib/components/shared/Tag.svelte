@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { removeTagFromBookmark } from '@api/actions/removeTagFromBookmark';
+	import { XIcon } from '@lucide/svelte';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
-	import { XIcon } from 'lucide-svelte';
 	import { map } from 'rxjs';
 	import { tagColors$ } from './tagColors';
 

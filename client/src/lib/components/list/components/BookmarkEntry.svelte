@@ -4,10 +4,10 @@
 	import { openBookmarkDetails } from '@components/details/state';
 	import { selectBookmark, selectedBookmarkIds$ } from '@components/list/selectedBookmark';
 	import Tag from '@components/shared/Tag.svelte';
+	import { ToiletIcon } from '@lucide/svelte';
 	import { getBookmarkVersusString } from '@util/util';
 	import type { Bookmark } from 'bookmarksapp-schemas/schemas';
 	import { sortBy } from 'lodash';
-	import { ToiletIcon } from 'lucide-svelte';
 	import { writable } from 'svelte/store';
 
 	type Props = {
